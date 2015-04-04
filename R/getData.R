@@ -98,7 +98,7 @@ equipment.def = c(
 )
 equipment = names(equipment.def)
 
-attitude = c(
+attitude.def = c(
   "ST29Q01" = "math.interest.enjoy.reading",
   "ST29Q02" = "instrumental.motivation.worthwhile.for.work",
   "ST29Q03" = "math.interest.forward.to.lessons",
@@ -142,21 +142,29 @@ attitude = c(
   "ST93Q06" = "perseverence.continue.to.perfection",
   "ST93Q07" = "perseverence.exceed.expectations"
 )
+attitude = names(attitude.def)
 
-math = c(
+math.def = c(
   "PV1MATH" = "math1",
   "PV2MATH" = "math2",
   "PV3MATH" = "math3",
   "PV4MATH" = "math4",
   "PV5MATH" = "math5"
 )
+math = names(math.def)
 
-reading = c(
+reading.def = c(
   "PV1READ" = "reading1",
   "PV2READ" = "reading2",
   "PV3READ" = "reading3",
   "PV4READ" = "reading4",
   "PV5READ" = "reading5"
 )
+reading = names(reading.def)
 
-fullusa = mergeUSA2012()
+truancy.def = c(
+  "ST08Q01" = "truancy.late",
+  "ST09Q01" = "truancy.skip.day",
+  "ST115Q01" = "truancy.skip.classes"
+)
+truancy = names(truancy.def)

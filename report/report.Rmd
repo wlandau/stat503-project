@@ -1,0 +1,29 @@
+---
+title: "What distinguishes high-performing students?"
+author: Will Landau
+date: April 6, 2015
+output: 
+  pdf_document:
+    fig_caption: true
+bibliography: report.bib
+---
+
+```{r, echo=FALSE}
+library(knitr)
+knitr::knit_hooks$set(inline = as.character)
+knitr::opts_chunk$set(cache=T, fig.height = 4, echo = F, results="hide")
+knitr::opts_knit$set(eval.after = 'fig.cap')
+```
+
+# Introduction 
+
+The goal is to find and derive variables in the 2012  OECD PISA dataset that separate the highest-performing students from the lowest-performing ones in the United States.  
+
+In 2012, the Organization for Economic Co-operation and Development (OECD) Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills in ways that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaires about their study habits, attitudes towards school, circumstances at home, etc. Extensive data were recorded about the schools and parents of those students as well.
+
+Using the PISA math and reading scores, I will select the USA students scoring below the 25th percentile overall (low achievers) and the ones scoring above the 75th percentile (high achievers). Next, I will comb through the rest of the student-specific PISA and look for variables that can recover the achievement level (high or low) of each student. 
+
+# PISA scores
+
+
+# References
