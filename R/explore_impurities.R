@@ -1,14 +1,22 @@
-student.factor.purities = function(){
-  stu = readRDS("../cache/usaStudent2012.rds") 
+extremeStudentUSA2012 = function(){
+  stu = studentUSA2012()
   scorenames = paste(rep(paste("PV", 1:5, sep=""), each = 2), c("MATH", "READ"), sep="")
   scores = stu[,scorenames]
   totscores = apply(scores, 1, sum)
   keep = (totscores < quantile(totscores, .25)) | (totscores > quantile(totscores, .75))
-  saveRDS(keep, "../cache/keptstudents.rds")
   stu$perform = factor(totscores > median(totscores), levels = c(T, F), labels = c("high", "low"))
   stu$PVTOTAL = totscores
   stu = stu[keep,]
-  saveRDS(stu, "../cache/extreme_students.rds")
+  stu
+}
+
+student.factor.impurities = function(){
+
+  f = "../cache/student_factor_impurities.rds"
+  if(file.exists(f))
+    return(readRDS(f))
+
+  stu = extremeStudentUSA2012()
 
   candidates = stu[,8:500]
   candidates = candidates[, sapply(candidates, 
@@ -39,4 +47,27 @@ student.factor.purities = function(){
       }
     }))
   })
+
+  saveRDS(impurities, f)
+  impurities
+}
+
+student.factor.impurities.plot = function(){
+  library(ggplot2)
+  Impurity = student.factor.impurities()
+  Factor = names(Impurity)
+  Factor = ordered(Factor, Factor[rev(order(Impurity))])
+
+  d = read.csv("../dictionaries/student-dict.csv", head = T)
+  rownames(d) = d$variable
+  Description = as.character(d[as.character(Factor),]$description)
+
+  if(Description[83] == Description[226])
+    Description[226] = "Perceived Control - Can Succeed with Enough Effort (rep 2)"
+
+  Description = ordered(Description, Description[rev(order(Impurity))])
+
+  x = data.frame(Impurity, Factor, Description)
+  s = subset(x, Impurity < .2)
+  ggplot(s) + geom_point(aes(x = Impurity, y = Description))
 }
