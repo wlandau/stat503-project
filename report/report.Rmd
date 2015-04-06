@@ -21,11 +21,12 @@ The goal is to find and derive variables in the 2012  OECD PISA dataset that sep
 
 In 2012, the Organization for Economic Co-operation and Development (OECD) Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills in ways that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaires about their study habits, attitudes towards school, circumstances at home, etc. Extensive data were recorded about the schools and parents of those students as well.
 
-Using the PISA math and reading scores, I will select the USA students scoring below the 25th percentile overall (low achievers) and the ones scoring above the 75th percentile (high achievers). Next, I will comb through the rest of the student-specific PISA and look for variables that can recover the achievement level (high or low) of each student. Using the most important variables, I will use supervised learning techniques to attempt to classify students, and I will explore the preprocessed data using unsupervised learning techniques. 
+PISA math and reading scores naturally divide USA subjects into high-performing students (top 25\%) and low-performing students (bottom 25\%). I will select a subset of variables in the student-specific PISA data and attempt to predict student performance (high or low) in the United States.
+
 
 # Exploratory analysis
 
-The student-specific data has roughly five hundred variables for predicting reading and math scores. After removing the few numerical variables and the ones with all missing values, we are left with 256 categorical variables for prediction. As seen in Figure \ref{fig:missing}, most variables still have a large fraction of missing values.
+The student-specific USA data has roughly five hundred variables for predicting reading and math scores. After removing the few continuous variables and the variables with all missing values, I am left with 256 categorical variables for prediction. As seen in Figure \ref{fig:missing}, most variables still have a large fraction of missing values.
 
 ```{r sources}
 for(f in paste("../R/", c(
@@ -39,7 +40,7 @@ for(f in paste("../R/", c(
 missing.hist()
 ```
 
-The next task is to efficiently comb through the 256 variables and select the ones most suitable for predicting student performance. I rank the variables according to a simple matching heuristic, which I calculate for each factor variable $x$ as follows:
+To explore the data further and  256 variables and build a classifier, I rank the variables according to a simple matching heuristic. The heuristic is similar to the simple matching coefficient between two categorical variables, and it loosely measures how well a factor accurately splits students according to high or low performance. For each factor $x$, I calculate this version of the matching coefficient as follows.
 
 1. Remove the missing values from $x$, along with the corresponding values from the binary vector $y$ of student performances (high and low coded as 1 and 0, respectively).
 2. For every subset $s$ of the levels of $x = (x_1, \ldots, x_n)$:
