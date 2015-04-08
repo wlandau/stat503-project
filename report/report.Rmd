@@ -21,26 +21,34 @@ The goal is to find and derive variables in the 2012  OECD PISA dataset that sep
 
 In 2012, the Organization for Economic Co-operation and Development (OECD) Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills in ways that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaires about their study habits, attitudes towards school, circumstances at home, etc. Extensive data were recorded about the schools and parents of those students as well.
 
-PISA math and reading scores naturally divide USA subjects into high-performing students (top 25\%) and low-performing students (bottom 25\%). I will select a subset of variables in the student-specific PISA data and attempt to predict student performance (high or low) in the United States.
-
-
-# Exploratory analysis
-
-The student-specific USA data has roughly five hundred variables for predicting reading and math scores. After removing the few continuous variables and the variables with all missing values, I am left with 256 categorical variables for prediction. As seen in Figure \ref{fig:missing}, most variables still have a large fraction of missing values.
+PISA math and reading scores naturally divide USA subjects into high-performing students (top 25\%) and low-performing students (bottom 25\%). I select a subset of variables in the student-specific PISA data and attempt to predict student performance (high or low) in the United States.
 
 ```{r sources}
 for(f in paste("../R/", c(
+  "issue-groupings",
   "getData",
-  "explore_matching"
+  "explore_matching",
+  "explore"
 ), ".R", sep=""))
   source(f)
 ```
 
-```{r missing, fig.cap="\\label{fig:missing} Histogram of the percentage of missing values in each of the available non-null 256 student-specific categorical variables for prediction. Most variables have a large fraction of missing values."}
-missing.hist()
+# Exploratory analysis
+
+## The need for subsetting students and censoring responses
+
+Table \ref{tab:pv} demonstrates the need to subset the USA data and censor the reading and math scores. All the scores are tightly correlated, so predicting them as continuous responses may not be productive, especially since most of the student data is categorical. However, there is a way to make the responses more manageable. First, I remove the middle 50\% of students (students for whom the sum of all the reading and math scores is between the 25th and 75th percentile). Second, I censor the data: students scoring above the 75th percentile overall are designated high-performing, and those scoring below the 25th percentile are designated low-performing.
+
+```{r pv, results=T}
+  pvcor()
 ```
 
-To explore the data further and  256 variables and build a classifier, I rank the variables according to a simple matching heuristic. The heuristic is similar to the simple matching coefficient between two categorical variables, and it loosely measures how well a factor accurately splits students according to high or low performance. For each factor $x$, I calculate this version of the matching coefficient as follows.
+
+## Exploring predictor variables using a matching heuristic
+
+The student-specific USA data has roughly 500 variables for predicting reading and math scores. I remove the few continuous variables and the variables with all missing values. From the 256 remaining categorical variables, I remove the ones related to self-efficacy, familiarity, and experience with math and reading concepts. (Predicting on these would be logically circular, nearly amounting to cheating.) In addition, I remove a few nondescript "ISCED" variables with poor documentation. I am left with 210 factor variables for prediction. 
+
+To comb through the remaining 210 factor variables efficiently, I make use of a simple matching heuristic. The heuristic is similar to the simple matching coefficient for comparing two categorical variables, and it loosely measures how well a factor accurately splits students according to high or low performance. For each factor $x$, I calculate this version of the matching coefficient as follows.
 
 1. Remove the missing values from $x$, along with the corresponding values from the binary vector $y$ of student performances (high and low coded as 1 and 0, respectively).
 2. For every subset $s$ of the levels of $x = (x_1, \ldots, x_n)$:
@@ -53,30 +61,41 @@ To explore the data further and  256 variables and build a classifier, I rank th
 3. Take the matching score of $x$ to be the maximum of all the matching scores calculated in step 2. 
 
 
-We can interpret this matching score as a potential rate of correct classification. A matching of 1 means that $x$ can predict $y$ perfectly, and a rate of 0.5 means that $x$ is no better than chance.
+This matching score is the most optimistic rate of correct classification for a prediction on a single variable. A matching of 1 means that $x$ can predict $y$ perfectly, and a rate of 0.5 means that $x$ is no better than chance.
 
-Figure \ref{fig:allmatchings} shows the matching scores of all 256 candidate factors. Most variables are better than chance, and the best have matching scores between 0.7 and 0.8. 
+Figure \ref{fig:allmatchings} shows the matching scores of the 210 candidate factors. Most variables are better than chance. The two variables with matchings better than 0.7 are "How many books at home" (censored) and "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late".
 
-```{r allmatchings, fig.cap="\\label{fig:allmatchings} matching scores of all 256 candidate factors. Most variables are better than chance, and the best have matching scores between 0.7 and 0.8. "}
-student.factor.matchings.plot()
+```{r allmatchings, fig.cap="\\label{fig:allmatchings} matching scores of all 210 candidate factors. Most variables are better than chance. The two variables with matchings better than 0.7 are \"How many books at home\" (censored) and \"Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late\"."}
+matchingHist()
 ```
+
+Figure \ref{fig:issue} shows the matching scores of the 210 variables, but this time, the variables are grouped by the general issues they cover, such as possessions, attitude, and parental backgrounds. Here, we can get a general picture of which issues matter in the sample of USA students. Academic habits outside school, school-related possessions, and attendance/truancy seem to be most related to performance, although there are few variables on these topics. There is a lot of variety among the attitude and teaching variables, and most of the survey questions seem to cover these issues. Many attitude and teaching questions are important, and will be used in the classifiers developed later. Interestingly, gender, course-content, and sociality (variables that attempt to measure the quality of students' social lives and social norms about school) were not very important. The parent-related variables seem largely split two ways, but this split does not separate mother-related variables from father-related ones.
+
+```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, but this time, with the variables grouped by the general issues they cover, such as possessions, attitude, and parental backgrounds. Here, we can get a general picture of which issues matter in the sample of USA students. Academic habits outside school, school-related possessions, and attendance/truancy seem to be most related to performance, although there are few variables on these topics. There is a lot of variety among the attitude and teaching variables, and most of the survey questions seem to cover these issues. Many attitude and teaching questions are important, and will be used in the classifiers developed later. Interestingly, gender, course-content, and sociality (variables that attempt to measure the quality of students' social lives and social norms about school) were not very important. The parent-related variables seem largely split two ways, but this split does not separate mother-related variables from father-related ones."}
+explore_by_issue()
+```
+
+
+
+
 
 # Variable selection and preprocessing
 
-Figure \ref{fig:goodmatchings} shows the matching scores of the top 40 variables. In general, self-efficacy and prior familiarity with the content most closely match outcomes in performance. However, using these variables for prediction would be logically circular and uninformative from a policy standpoint. I remove them from the analysis. Figure \ref{fig:keepvars} shows the variables with which I will build a classifier.
+Figure \ref{fig:keepvars} shows the variables with the top 20 matching scores calculated in the previous section. I will use these to build a classifier.
 
-```{r goodmatchings, fig.height = 8, fig.cap="\\label{fig:goodmatchings} "}
-student.factor.matchings.plot(n = 40, y.arg ="Description")
+```{r keepvars, fig.cap="\\label{fig:keepvars} variables with the top 20 matching scores. I will use these to build classifiers."}
+student.factor.matchings.plot(n = 20, y.arg = "Description")
 ```
 
-```{r keepvars, fig.cap="\\label{fig:keepvars} "}
-student.factor.matchings.plot(n = 20, y.arg ="Description", cheatvars = F)
-```
+Unfortunately, even with a reduction in the number of variables, there are still a lot of missing values. Figure \ref{fig:studentmiss} show the number of missing values for each student, and Figure \ref{fig:missing} shows the percentage of missing values within each variable. The figures lead to the following imputation strategy:
 
-Unfortunately, even with a reduction in the number of variables, there are still a lot of missing values. Figure \ref{fig:studentmiss} show the number of missing values for each student. The figure leads to the following imputation strategy:
 
-```{r studentmiss, fig.cap="\\label{fig:studentmiss} number of missing values for each student. This is after selecting the best 20 variables in the \"Variable selection and preprocessing\" section."}
+```{r studentmiss, fig.cap="\\label{fig:studentmiss} number of missing values for each student (after selecting 20 variables to build a classifier)."}
 missingByStudent()
+```
+
+```{r missing, fig.cap="\\label{fig:missing} Histogram of the percentage of missing values within each of the 20 selected predictor variables. Most variables are missing about a third of their values."}
+missing.hist()
 ```
 
 1. Remove the students who missed more than 13 questions (only 3.4\% of USA students). 
@@ -84,15 +103,7 @@ missingByStudent()
 3. Impute the remaining missing values with nearest neighbor imputation on the 20 predictor variables. I use the ``knnImputation`` function in the ``DMwR`` [@DMwR] package (setting the number of neighbors to 10).
 
 
-The resulting dataset looks like:
-
-```{r imputedUSA, results=T, echo = T}
-imp = imputedUSA()
-dim(imp)
-head(imp)
-```
-
-where the 20 predictor variables are defined in the PISA 2012 student dictionary.
+The resulting dataset 4949 students and no missing values.
 
 # Plan for further work
 
