@@ -9,6 +9,7 @@ bibliography: report.bib
 ---
 
 ```{r, echo=FALSE}
+set.seed(0)
 library(knitr)
 knitr::knit_hooks$set(inline = as.character)
 knitr::opts_chunk$set(cache=T, fig.height = 4, echo = F, results="hide", message = F)
@@ -33,7 +34,7 @@ for(f in paste("../R/", c(
   source(f)
 ```
 
-# Exploratory analysis
+# Exploratory analysis, variable selection, and preprocessing
 
 ## The need for subsetting students and censoring responses
 
@@ -44,7 +45,7 @@ Table \ref{tab:pv} demonstrates the need to subset the USA data and censor the r
 ```
 
 
-## Exploring predictor variables using a matching heuristic
+## Finding useful predictor variables using a matching heuristic
 
 The student-specific USA data has roughly 500 variables for predicting reading and math scores. I remove the few continuous variables and the variables with all missing values. From the 256 remaining categorical variables, I remove the ones related to self-efficacy, familiarity, and experience with math and reading concepts. (Predicting on these would be logically circular, nearly amounting to cheating.) In addition, I remove a few nondescript "ISCED" variables with poor documentation. I am left with 210 factor variables for prediction. 
 
@@ -75,11 +76,7 @@ Figure \ref{fig:issue} shows the matching scores of the 210 variables, but this 
 explore_by_issue()
 ```
 
-
-
-
-
-# Variable selection and preprocessing
+## Variable selection and imputation
 
 Figure \ref{fig:keepvars} shows the variables with the top 20 matching scores calculated in the previous section. I will use these to build a classifier.
 
@@ -105,6 +102,12 @@ missing.hist()
 
 The resulting dataset 4949 students and no missing values.
 
+
+## Exploring the imputed data
+
+
+
+
 # Plan for further work
 
 - Flesh out a more comprehensive coherent story in the exploratory analysis section. I will categorize variables by the major issues to which they pertain and group them by the matching coefficients described previously. This will give me a rough idea of which overall issues (such as parental education, possessions, attitude, etc.) are most important in classifying students.
@@ -114,6 +117,7 @@ The resulting dataset 4949 students and no missing values.
     - Random forests
     - Nearest neighbors classification
 - Run a basic clustering analysis on the 20 predictor variables in the imputed data. I will use kmeans and hierarchical clustering, and I will determine how much information about student performance these techniques recover.
+
 
 
 # Acknowledgements

@@ -154,30 +154,6 @@ missingByStudent = function(){
   ggplot(nas) + geom_histogram(aes(x = nas), binwidth = 1) + xlab("Number missing")
 }
 
-imputedUSA = function(){
-  f = "../cache/imputedUSA.rds"
-  if(file.exists(f))
-    return(readRDS(f))
-
-  library(DMwR)
-
-  d = dataWithMissings()
-  nas = apply(d, 1, function(x){sum(is.na(x))})
-  keep = nas <= 13
-  d = d[keep, ]
-
-  dnum = as.data.frame(sapply(d, function(x){
-    scale(as.numeric(factor(x, levels = levels(x), labels = 1:length(levels(x)))))
-  }))
-  dnum$perform[dnum$perform > 0] = 1
-  dnum$perform[dnum$perform < 0] = -1
-
-  ki = knnImputation(dnum[,-1], k = 10)
-  imputed = data.frame(Performance = as.factor(dnum$perform), ki)
-  saveRDS(imputed, f)
-  imputed
-}
-
 explore_by_issue = function(){
   library(ggplot2)
   library(plyr)
@@ -194,5 +170,29 @@ explore_by_issue = function(){
   ggplot(x) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
 }
 
+imputedUSA = function(){
+  f = "../cache/imputedUSA.rds"
+  if(file.exists(f))
+    return(readRDS(f))
 
+  library(DMwR)
+
+  d = dataWithMissings()
+  nas = apply(d, 1, function(x){sum(is.na(x))})
+  keep = nas <= 15
+  d = d[keep, ]
+  nas = nas[keep]
+
+  dnum = as.data.frame(sapply(d, function(x){
+    scale(as.numeric(factor(x, levels = levels(x), labels = 1:length(levels(x)))))
+  }))
+  dnum$perform[dnum$perform > 0] = 1
+  dnum$perform[dnum$perform < 0] = -1
+
+  ki = knnImputation(dnum[,-1], k = 10)
+  imputed = data.frame(Performance = as.factor(dnum$perform), ki)
+  imputed$number.missing = nas
+  saveRDS(imputed, f)
+  imputed
+}
 
