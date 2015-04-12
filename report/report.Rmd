@@ -1,7 +1,7 @@
 ---
 title: "What distinguishes high-performing students?"
 author: Will Landau
-date: April 6, 2015
+date: April 25, 2015
 output: 
   pdf_document:
     fig_caption: true
@@ -18,18 +18,26 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 
 # Introduction 
 
-The goal is to find and derive variables in the 2012  OECD PISA dataset that separate the highest-performing students from the lowest-performing ones in the United States.  
+## The Data
 
 In 2012, the Organization for Economic Co-operation and Development (OECD) Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills in ways that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaires about their study habits, attitudes towards school, circumstances at home, etc. Extensive data were recorded about the schools and parents of those students as well.
 
 PISA math and reading scores naturally divide USA subjects into high-performing students (top 25\%) and low-performing students (bottom 25\%). I select a subset of variables in the student-specific PISA data and attempt to predict student performance (high or low) in the United States.
 
+## Motivating questions
+
+- In general, which issues are most strongly associated with student success in the USA?
+- What kinds of students are there? If they partition into groups, what do these groups mean?
+- How strongly to the PISA metrics predict student success?
+
+
 ```{r sources}
 for(f in paste("../R/", c(
   "issue-groupings",
   "getData",
+  "explore",
   "explore_matching",
-  "explore"
+  "explore_imputed"
 ), ".R", sep=""))
   source(f)
 ```
@@ -95,34 +103,59 @@ missingByStudent()
 missing.hist()
 ```
 
-1. Remove the students who missed more than 13 questions (only 3.4\% of USA students). 
+1. Remove the students who missed more than 13 questions (only 3.4\% of USA students). The resulting dataset 5052 students and no missing values. In Figure \ref{fig:moremissing}, I determine that no more students need to be removed for the imputation to be reasonable. 
 2. Put all factors on a numeric scale such that the natural ordering of factor levels is preserved. (All factors are ordinal.) Center and scale the predictor variables, and denote student performance by 1 and -1 for high-performing and low-performing students, respectively.
 3. Impute the remaining missing values with nearest neighbor imputation on the 20 predictor variables. I use the ``knnImputation`` function in the ``DMwR`` [@DMwR] package (setting the number of neighbors to 10).
 
 
-The resulting dataset 4949 students and no missing values.
+```{r moremissing, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:moremissing} Before imputation, I removed all the students with more than 15 missing values. The purpose of this plot is to determine if I should have reduced this per-student missing value threshold to 11. In each panel, I plot a predictor variable for students with more than 11 missing values and for students with less than 12 missing values. For each variable, the ranges of the variables are nearly the same, and most of the corresponding quartiles are nearly the same. Hence, the imputation succeeded, and I do not need to remove any more students."}
+more.missing.parcoord()
+```
+
+
 
 
 ## Exploring the imputed data
 
 
+Figure \ref{fig:var_hist} shows histograms of all the predictor variables. The nearest-neighbor imputation smoothed out many of the values so that there is some appearance of a continuous scale. Still, the original variables were discrete, so we see 2 to 4 peaks for each histogram. Model-based clustering with a mixture of normal distributions would not be prudent for this data.
 
+```{r var_hist, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:var_hist} histograms of all the predictor variables. The nearest-neighbor imputation smoothed out many of the values so that there is some appearance of a continuous scale. Still, the original variables were discrete, so we see 2 to 4 peaks for each histogram. Model-based clustering with a mixture of normal distributions would not be prudent for this data."}
+var.hist()
+```
+
+
+Figure \ref{fig:response_parcoord} plots each predictor variable versus student performance (high or low). All of the variables are associated with student performance, and for some variables, performance-specific interquartile regions do not overlap. Figure \ref{fig:varcor} shows the pairwise correlations among each of the predictor variables. Most correlations are acceptably close to zero. It seems reasonable to keep all 20 predictor variables.
+
+```{r varcor, fig.cap = "\\label{fig:varcor} pairwise correlations among each of the predictor variables. Most correlations are acceptably close to zero."}
+varcor()
+```
+
+```{r response_parcoord, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:response_parcoord} plots of each predictor variable versus student performance (high or low). All of the variables are associated with student performance, and for some variables, performance-specific interquartile regions do not overlap. "}
+response.parcoord()
+```
+
+20 predictor variables can be cumbersome all together, so I used multidimensional scaling to see how the data separate. The ``mds`` function in the ``vegan`` package stalled when I tried to use the full dataset, so I took a random subset of 250 students. I plot the MDS components in Figure \ref{fig:mds}, and I color the points by student performance. The data almost separate by student performance. However, the separation is not complete, and in fact, little to no natural separation or clustering in the data is visible from this plot. 
+
+```{r mds, fig.cap = "\\label{fig:mds} MDS components, where points (students) are colored by performance (high or low). The data almost separate by student performance. However, the separation is not complete, and in fact, little to no natural separation or clustering in the data is visible from this plot. "}
+mds.plot()
+```
 
 # Plan for further work
 
-- Flesh out a more comprehensive coherent story in the exploratory analysis section. I will categorize variables by the major issues to which they pertain and group them by the matching coefficients described previously. This will give me a rough idea of which overall issues (such as parental education, possessions, attitude, etc.) are most important in classifying students.
+
+- Run a basic clustering analysis on the 20 predictor variables in the imputed data. I will use kmeans and hierarchical clustering, and I will determine how much information about student performance these techniques recover.
 - Build a classifier on the preprocessed and imputed data using:
     - Logistic regression
     - Neural networks
     - Random forests
     - Nearest neighbors classification
-- Run a basic clustering analysis on the 20 predictor variables in the imputed data. I will use kmeans and hierarchical clustering, and I will determine how much information about student performance these techniques recover.
+
 
 
 
 # Acknowledgements
 
-I would like to thank Dr. Cook for steering me in the right direction. The PISA data is messy and cumbersome, and she gave me a much-needed boost.
-
+I would like to thank Dr. Cook for steering me in the right direction. The PISA data is messy and cumbersome, and the guidance is very appreciated.
 
 # References

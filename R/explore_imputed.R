@@ -26,10 +26,39 @@ more.missing.parcoord = function(){
     theme_bw() + 
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5),
 strip.text.x = element_text(size = 5)) + 
-    xlab("Number of survey questions missed") +
+    xlab("Number of survey question missing values") +
     ylab("value") + 
     facet_wrap(~Description, scales = "free_x") 
 }
+
+var.hist = function(){
+  library(ggplot2)
+  library(reshape2)
+
+  d = imputedUSA()
+  d$id = 1:dim(d)[1]
+  d$Performance = factor(d$Performance, levels = c(-1, 1), labels = c("low", "high"))
+
+  m  = melt(d, id.vars = c("id", "Performance", "number.missing"))
+
+  dict = read.csv("../dictionaries/student-dict.csv", head = T)
+  des = as.character(dict$description)
+  vars = as.character(dict$variable)
+  names(des) = vars
+
+  m$Description = des[as.character(m$variable)] 
+  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late"] = "students interrupt / teacher late"
+  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Early"] = "students interrupt / teacher early"
+  m$Description = substr(m$Description, 0, 35)
+
+  ggplot(m) + 
+    geom_histogram(aes(x = value), binwidth = .25) + 
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5), strip.text.x = element_text(size = 5)) + 
+    ylab("value") + 
+    facet_wrap(~Description, scales = "free_x")
+}
+
 
 response.parcoord = function(){
   library(ggplot2)
@@ -67,10 +96,30 @@ mds.plot = function(){
 
   d = imputedUSA()
   d$Performance = factor(d$Performance, levels = c(-1, 1), labels = c("low", "high"))
+
+  wch = sample.int(dim(d)[1], 250)
+  d = d[wch,]
+
   x = d[, !(colnames(d) %in% c("Performance", "number.missing"))]
   
-  x.mds<-metaMDS(dist(x), k=2) 
+  f = "../cache/mds.rds"
+  if(file.exists(f)){
+    x.mds = readRDS(f)
+  } else {
+    x.mds<-metaMDS(dist(x), k=2) 
+    saveRDS(x.mds, f)
+  }
   colnames(x.mds$points)<-c("MDS1", "MDS2") 
   df = data.frame(Performance = d$Performance, x.mds$points)
   qplot(MDS1, MDS2, data=df, color=Performance) + theme(aspect.ratio=1)
+}
+
+varcor = function(){
+  library(ggplot2)
+  d = imputedUSA()
+  x = d[, !(colnames(d) %in% c("Performance", "number.missing"))]
+
+  m = cor(x)
+  v = m[lower.tri(m)]
+  qplot(v, geom = "histogram", binwidth = .05)
 }
