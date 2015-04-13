@@ -5,6 +5,7 @@ date: April 25, 2015
 output: 
   pdf_document:
     fig_caption: true
+    number_sections: true
 bibliography: report.bib
 ---
 
@@ -15,21 +16,6 @@ knitr::knit_hooks$set(inline = as.character)
 knitr::opts_chunk$set(cache=T, fig.height = 4, echo = F, results="hide", message = F)
 knitr::opts_knit$set(eval.after = 'fig.cap')
 ```
-
-# Introduction 
-
-## The Data
-
-In 2012, the Organization for Economic Co-operation and Development (OECD) Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills in ways that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaires about their study habits, attitudes towards school, circumstances at home, etc. Extensive data were recorded about the schools and parents of those students as well.
-
-PISA math and reading scores naturally divide USA subjects into high-performing students (top 25\%) and low-performing students (bottom 25\%). I select a subset of variables in the student-specific PISA data and attempt to predict student performance (high or low) in the United States.
-
-## Motivating questions
-
-- In general, which issues are most strongly associated with student success in the USA?
-- What kinds of students are there? If they partition into groups, what do these groups mean?
-- How strongly to the PISA metrics predict student success?
-
 
 ```{r sources}
 for(f in paste("../R/", c(
@@ -42,15 +28,40 @@ for(f in paste("../R/", c(
   source(f)
 ```
 
-# Exploratory analysis, variable selection, and preprocessing
+# Introduction 
 
-## The need for subsetting students and censoring responses
+Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., al of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire.
 
-Table \ref{tab:pv} demonstrates the need to subset the USA data and censor the reading and math scores. All the scores are tightly correlated, so predicting them as continuous responses may not be productive, especially since most of the student data is categorical. However, there is a way to make the responses more manageable. First, I remove the middle 50\% of students (students for whom the sum of all the reading and math scores is between the 25th and 75th percentile). Second, I censor the data: students scoring above the 75th percentile overall are designated high-performing, and those scoring below the 25th percentile are designated low-performing.
 
-```{r pv, results=T}
+
+# A first cleanup: getting ready to explore
+
+The student-specific 2012 PISA dataset is large and messy, and it needs to be cleaned and subsetted both before and after exploratory analysis. For example, to save computing time, and because overall pedagogy and the survey's implementation are different among different countries, only students from the United States will be examined here.
+
+## Variables for predicting success
+
+There are around 500 variables from the student background questionnaire, and large fraction of the answers are missing. In fact, after removing the few continuous survey variables and the questions with no recorded responses at all, only 256 variables are left. Of those 256, I remove the ones that do little to guide education policy, such as self-efficacy measures, self-reported prior familiarity and experience with math and reading concepts, and nondescript "ISCED" variables. 210 factor variables remain for prediction, most of which have between 2 and 4 levels each.
+
+
+## Constructing the "student success" variable
+
+For each student, the PISA dataset has 5 overall reading scores and 5 overall math scores. Each score is roughly on a continuous scale from around 200 to around 800, and as seen in Figure \ref{fig:pv}, the scores are highly correlated. Standardized test scores are only rough measures of academic performance, but when properly censored, they do expose the most egregious achievement gaps. Thus, the next preprocessing step is to
+
+1. Compute a total score for each student by summing the 10 standardized PISA scores together.
+2. Collect the students with total scores above the 75th percentile, and call them "high-performing".
+3. Collect the students with total scores below the 25th percentile, and call them "low-performing".
+4. Remove the rest of the students from the data.
+
+In the context of prediction, I now have a response variable with two possible values: high and low. I will temporarily suspend my skepticism and treat this factor as the gold standard of student success. 
+
+```{r pv, fig.cap="\\label{fig:pv}histogram of pairwise correlations among the original 5 reading and 5 math scores from the PISA tests. Correlations are high, so I do not lose much information in summing them up to produce a single total score for each student."}
   pvcor()
 ```
+
+
+# The best factors for predicting success
+
+
 
 
 ## Finding useful predictor variables using a matching heuristic
