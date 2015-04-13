@@ -3,3 +3,5 @@
 *.aux
 *.log
 local/*
+report/report_cache/*
+report/report_files/*
