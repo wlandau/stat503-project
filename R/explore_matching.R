@@ -123,7 +123,7 @@ subsetVariables = function(){
 
 matchingHist = function(){
   library(ggplot2)
-  ggplot(data.frame(Matching = subsetVariables()$Matching)) + geom_histogram(aes(x = Matching), binwidth=.0125) + xlab("Matching score")
+  ggplot(data.frame(Matching = subsetVariables()$Matching)) + geom_histogram(aes(x = Matching), binwidth=.0125) + xlab("Matching heuristic")
 }
 
 student.factor.matchings.plot = function(n = NULL, y.arg = "Factor"){
