@@ -12,51 +12,6 @@ matching = function(a, b){
   max(n, N - n)/N
 }
 
-extremeStudentUSA2012 = function(){
-  stu = studentUSA2012()
-  scorenames = paste(rep(paste("PV", 1:5, sep=""), each = 2), c("MATH", "READ"), sep="")
-  scores = stu[,scorenames]
-  totscores = apply(scores, 1, sum)
-  keep = (totscores < quantile(totscores, .25)) | (totscores > quantile(totscores, .75))
-  stu$perform = factor(totscores > median(totscores), levels = c(T, F), labels = c("high", "low"))
-  stu$PVTOTAL = totscores
-  stu = stu[keep,]
-  stu
-}
-
-good.factors = function(){
-  stu = extremeStudentUSA2012()
-  candidates = stu[,8:500]
-  candidates = candidates[, sapply(candidates, 
-    function(x){is.factor(x) & length(levels(x)) < 10 & !all(is.na(x))})]
-
-  d = read.csv("../dictionaries/student-dict.csv", head = T)
-  rownames(d) = d$variable
-  Factor = colnames(candidates)
-
-  Description = as.character(d[as.character(Factor),]$description)
-  Description = gsub("\x92", "", Description)
-
-  if(Description[83] == Description[226])
-    Description[226] = "Perceived Control - Can Succeed with Enough Effort (rep 2)"
-
-  Description[Factor == "ST84Q01"] = "Class Mngmt: Students Interrupt/Teacher Early"
-  Description[Factor == "ST84Q03"] = "Class Mngmt: Students Interrupt/Teacher Late"
-
-   remove = grepl("Self-Efficacy", Description) | 
-  grepl("Familiarity with", Description) |
-  grepl("Experience with", Description) | 
-  grepl("Openness for", Description) | 
-  grepl("Problem Text Message", Description) | 
-  grepl("Problem Route Selection", Description) | 
-  grepl("Problem Ticket Machine", Description) | 
-  grepl("Student Questionnaire Form", Description) |
-  grepl("Overclaiming", Description) | 
-  (Factor %in% c("ISCEDD", "ISCEDL", "ISCEDO"))
-  
-  ret = candidates[, !remove]
-}
-
 missing.hist = function(){
   library(ggplot2)
   x = dataWithMissings()[, -1]
@@ -74,7 +29,7 @@ student.factor.matchings = function(){
   candidates = good.factors()
 
   matchings = sapply(candidates, function(x){
-    y = stu$perform[!is.na(x)]
+    y = stu$success[!is.na(x)]
     x = x[!is.na(x)]
     possible.splits.0 = lapply(0:length(levels(x)), function(l) combn(levels(x),l))
     possible.splits = lapply(possible.splits.0, function(x){as.data.frame(t(x))})
@@ -143,7 +98,7 @@ dataWithMissings = function(){
 
   x = subsetVariables()[1:20,]
   stu = extremeStudentUSA2012()
-  d = stu[, c("perform", as.character(x$Factor))]
+  d = stu[, c("success", as.character(x$Factor))]
   saveRDS(d, f)
   d
 }
@@ -186,11 +141,11 @@ imputedUSA = function(){
   dnum = as.data.frame(sapply(d, function(x){
     scale(as.numeric(factor(x, levels = levels(x), labels = 1:length(levels(x)))))
   }))
-  dnum$perform[dnum$perform > 0] = 1
-  dnum$perform[dnum$perform < 0] = -1
+  dnum$success[dnum$success > 0] = 1
+  dnum$success[dnum$success < 0] = -1
 
   ki = knnImputation(dnum[,-1], k = 10)
-  imputed = data.frame(Performance = as.factor(dnum$perform), ki)
+  imputed = data.frame(successance = as.factor(dnum$success), ki)
   imputed$number.missing = nas
   saveRDS(imputed, f)
   imputed

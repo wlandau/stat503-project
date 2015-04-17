@@ -2,7 +2,7 @@ pvcor = function(){
   library(knitr)
   library(ggplot2)
 
-  stu = studentUSA2012()
+  stu = rawStudent()
   scorenames = paste(rep(paste("PV", 1:5, sep=""), each = 2), c("MATH", "READ"), sep="")
   y = stu[,scorenames]
   m = cor(y)
