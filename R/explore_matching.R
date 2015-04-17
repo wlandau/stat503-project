@@ -1,16 +1,4 @@
-match_transform = function(a){
-  a = as.vector(a)
-  ua = unique(a)
-  as.vector(factor(a, levels = ua, labels = 1:length(ua)))
-}
 
-matching = function(a, b){
-  a = match_transform(a)
-  b = match_transform(b)
-  n = sum(a == b)
-  N = length(a)
-  max(n, N - n)/N
-}
 
 missing.hist = function(){
   library(ggplot2)
