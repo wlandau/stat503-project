@@ -18,7 +18,7 @@ impute = function(lst, max.na){
   y.num = as.integer(as.character(factor(y, levels = c("high", "low"), labels = c(1, -1))))
 
   x.num = knnImputation(x.num, k = 10)
-  list(x = x.num, y = y, y.num = y.num, dictionary = lst$dictionary)
+  list(x = x.num, y = y, y.num = y.num, dictionary = lst$dictionary, num.missing = nas)
 }
 
 getSubset = function(issue = "top_20", n = 10, max.na = n/2){
