@@ -28,7 +28,7 @@ getSubset = function(issue = "top_20", n = 10, max.na = n/2){
 
   s = student()
 
-  if(issue != "top.20"){
+  if(issue != "top_20"){
     s$x = s$x[, s$dictionary$Issue == issue]
     s$dictionary = s$dictionary[s$dictionary$Issue == issue,]
   }
