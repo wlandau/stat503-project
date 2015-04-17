@@ -6,20 +6,19 @@ impute = function(lst, max.na){
 
   nas = apply(x, 1, function(v){sum(is.na(v))})
   keep = nas <= max.na
-  d = d[keep, ]
+
+  x = x[keep, ]
+  y = y[keep]
   nas = nas[keep]
 
-  dnum = as.data.frame(sapply(d, function(x){
-    scale(as.numeric(factor(x, levels = levels(x), labels = 1:length(levels(x)))))
+  x.num = as.data.frame(sapply(x, function(v){
+    scale(as.numeric(factor(v, levels = levels(v), labels = 1:length(levels(v)))))
   }))
-  dnum$success[dnum$success > 0] = 1
-  dnum$success[dnum$success < 0] = -1
 
-  ki = knnImputation(dnum[,-1], k = 10)
-  imputed = data.frame(successance = as.factor(dnum$success), ki)
-  imputed$number.missing = nas
-  saveRDS(imputed, f)
-  imputed
+  y.num = as.integer(as.character(factor(y, levels = c("high", "low"), labels = c(1, -1))))
+
+  x.num = knnImputation(x.num, k = 10)
+  list(x = x.num, y = y, y.num = y.num, dictionary = lst$dictionary)
 }
 
 getSubset = function(issue = "top_20", n = 10, max.na = n/2){
@@ -35,5 +34,6 @@ getSubset = function(issue = "top_20", n = 10, max.na = n/2){
   }
 
   s$dictionary = s$dictionary[order(s$dictionary$Matching, decreasing = T),][1:n,]
-  s$x = s$x[, as.character(s$dictionary$Factor)] 
+  s$x = s$x[, as.character(s$dictionary$Factor)]
+  impute(s, max.na)
 }
