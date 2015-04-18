@@ -84,14 +84,50 @@ Figure \ref{fig:allmatchings} shows the matching heuristics of the 210 predictor
 matching.hist()
 ```
 
-Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. 
+Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. It is important to recognize here, however, that these issues have the most variables, and their apparent importance could just be due to bias in the design of the PISA survey.
 
-```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections."}
+```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. It is important to recognize here, however, that these issues have the most variables, and their apparent importance could just be due to bias in the design of the PISA survey."}
 plot.matching.by.issue()
 ```
 
-# Focusing on the key issues and imputation
+# Focusing on the key issues
 
+The previous section established that teaching, attitude/interest/motivation, and parental backgrounds could be important areas to investigate. Some matching scores on individual variables in these areas are high. But how important is each key issue overall? Which issues are more important than the others? How does each issue compare to the full predictive potential of the whole PISA dataset? To find out, I build a dataset on each issue and attempt to classify students according to academic success. Below, I describe these issue-specific datasets.
+
+## Issue-specific datasets
+
+### Teaching
+
+The teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
+
+```{r usateaching, fig.cap="\\label{fig:usateaching}  For the USA teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
+matching.dot.plot(country = "USA", .issue = "teaching", n = 20, max.na = 15)
+```
+
+### Attitude/interest/motivation
+
+These variables are student self-reported measures of perceived control, work ethic, motivation, attitude towards school, anxiety, attributions to failure, and perseverance. For the attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown in Figure \ref{fig:usaattitude}.
+
+```{r usaattitude, fig.cap="\\label{fig:usaattitude}  For the USA attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown here."}
+matching.dot.plot(country = "USA", .issue = "attitude-interest", n = 20, max.na = 15)
+```
+
+### Parental backgrounds
+
+The parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript "ISCED" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
+
+```{r usaparent, fig.cap="\\label{fig:usaparent}  The parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. I use all 15 of these variables for the parental backgrounds dataset, shown here."}
+matching.dot.plot(country = "USA", .issue = "parent.backgrounds", n = 15, max.na = 12)
+```
+
+
+### Top 20 variables
+
+For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown in Figure \ref{fig:usatop20}.
+
+```{r usatop20, fig.cap="\\label{fig:usatop20} For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown here."}
+matching.dot.plot(country = "USA", .issue = "top_20", n = 20, max.na = 15)
+```
 
 
 

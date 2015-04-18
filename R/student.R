@@ -107,7 +107,7 @@ student = function(country = "USA"){
 
   Issue = issue(Factor)
 
-  keep = (Issue != "self-efficacy/familiarity/experience") & (Issue != "other")
+  keep = (Issue != "self-efficacy-familiarity-experience") & (Issue != "other")
   x = candidates[, keep]
 
   dictionary = data.frame(

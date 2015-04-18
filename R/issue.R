@@ -18,7 +18,7 @@ issue = Vectorize(function(v){
     "ST05Q01",
     "REPEAT"
   ) || startsWith(v, "ST07"))
-    return("attendance/truancy/repeat")
+    return("attendance-truancy-repeat")
 
   if(startsWith(v, "ST11") && v != "ST115Q01")
     return("family.at.home")
@@ -30,7 +30,7 @@ issue = Vectorize(function(v){
   if(v %in% c("IMMIG") ||
   any(startsWith(v, c("ST20", "ST21", "ST25", "EC07", "EC08", "EC09", "EC10", "EC11", "EC12",
     "EC22", "EC23", "EC24"))))
-    return("international/language")
+    return("international-language")
 
  if(v %in% c(
     "ST27Q04",
@@ -67,7 +67,7 @@ issue = Vectorize(function(v){
  return("school.posessions")
 
   if(any(startsWith(v, c("ST29", "ST42", "ST43", "ST44", "ST46", "ST48", "ST88", "ST89", "ST91", "ST93", "IC22"))))
-    return("attitude/interest")
+    return("attitude-interest")
  
   if(any(startsWith(v, c("ST35", "ST87"))))
     return("sociality")
@@ -76,7 +76,7 @@ issue = Vectorize(function(v){
     return("learn.to.look.for.job")
 
   if(any(startsWith(v, c("ST37", "ST61", "ST62", "ST94", "ST96"))))
-    return("self-efficacy/familiarity/experience")
+    return("self-efficacy-familiarity-experience")
 
   if(any(startsWith(v, c("ST49"))))
     return("math-behavior")
@@ -91,7 +91,7 @@ issue = Vectorize(function(v){
     return("other.activities.at.school")
 
   if(any(startsWith(v, c("ST55", "ST57", "IC09"))))
-    return("study/learn.outside.school")
+    return("study-learn.outside.school")
 
   if(any(startsWith(v, paste("ST", 70:71, sep=""))))
     return("number.class.periods")

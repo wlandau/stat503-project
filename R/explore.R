@@ -40,10 +40,10 @@ plot.matching.by.issue = function(country = "USA"){
   ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
 }
 
-top.matching.vars = function(country = "USA", n = 10, y.arg = "Description"){
+matching.dot.plot = function(country = "USA", .issue = "top_20", n = 20, max.na = floor(0.75*n), y.arg = "Description"){
   library(ggplot2)
 
-  lst = student(country)
+  lst = getSubset(country = country, .issue = .issue, n = n, max.na = max.na)
 
   d = lst$dictionary
   d = d[order(d$Matching, decreasing = T),]
