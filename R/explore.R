@@ -10,64 +10,67 @@ pvcor = function(){
   qplot(v, geom = "histogram", binwidth = .025) + xlab("correlation")
 }
 
-missing.hist = function(){
+missing.var.hist = function(){
   library(ggplot2)
-  x = dataWithMissings()[, -1]
+  x = rawStudent()
   numna = data.frame(Missing = apply(x, 2, function(i){mean(is.na(i))}))
   ggplot(numna) + geom_histogram(aes(x = Missing), binwidth = 0.025) + xlab("Percent Missing")
 }
 
-matchingHist = function(){
+matching.hist = function(){
   library(ggplot2)
-  ggplot(data.frame(Matching = subsetVariables()$Matching)) + geom_histogram(aes(x = Matching), binwidth=.0125) + xlab("Matching heuristic")
+  s = student()
+  d = s$dictionary
+  ggplot(d) + geom_histogram(aes(x = Matching), binwidth=.0125) + xlab("Matching heuristic")
 }
 
-student.factor.matchings.plot = function(n = NULL, y.arg = "Factor"){
+top.matching.vars = function(lst = student(), n = 10, y.arg = "Description"){
   library(ggplot2)
-  x = subsetVariables()
 
-  pl = ggplot(x[1:n,]) + geom_point(aes_string(x = "Matching", y = y.arg)) + xlab("Matching score") + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5))
+  d = lst$dictionary
+  d = d[order(d$Matching, decreasing = T),]
+
+  d$Factor = ordered(d$Factor, rev(d$Factor))
+  d$Description = ordered(d$Description, rev(d$Description))
+
+  pl = ggplot(d[1:n,]) + geom_point(aes_string(x = "Matching", y = y.arg)) + xlab("Matching score") + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5))
   if(y.arg == "Factor")
     pl = pl + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
   pl
 }
 
-explore_by_issue = function(){
+plot.matching.by.issue = function(lst = student()){
   library(ggplot2)
   library(plyr)
 
-  x = subsetVariables()
-  x$Issue = as.factor(unlist(issue(x$Factor)))
+  d = lst$dictionary
 
-  by.issue = ddply(x, "Issue", function(df){
-    data.frame(Issue = df$Issue[1], Matching = median(df$Matching))
+  order.by.issue = ddply(d, "Issue", function(df){
+    data.frame(Issue = df$Issue[1], Matching = quantile(df$Matching, 0.75))
   })
 
-  x$Issue = ordered(x$Issue, levels = by.issue$Issue[order(by.issue$Matching)])
+  d$Issue = ordered(d$Issue, levels = order.by.issue$Issue[order(order.by.issue$Matching)])
 
-  ggplot(x) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
+  ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
 }
 
-more.missing.parcoord = function(){
+imputation.check = function(lst = getSubset(), new.max.na = 11){
   library(ggplot2)
   library(reshape2)
   library(gdata)
 
-  d = imputedUSA()
-  d$id = 1:dim(d)[1]
-  d$missing = d$number.missing > 11
-  d$missing = factor(d$missing, levels = c(T, F), labels = c("> 11", "<= 11"))
+  x = lst$x
+  x$id = 1:dim(x)[1]
+  x$missing = lst$num.missing > new.max.na
+  x$missing = factor(x$missing, levels = c(T, F), labels = paste(c(">", "<="), new.max.na))
+  x$Success = lst$y
 
-  m  = melt(d, id.vars = c("id", "Performance", "number.missing", "missing"))
+  m  = melt(x, id.vars = c("id", "Success", "missing"))
 
-  dict = read.csv("../dictionaries/student-dict.csv", head = T)
-  des = as.character(dict$description)
-  vars = as.character(dict$variable)
-  names(des) = vars
+  des = lst$dictionary$Description
+  names(des) = as.character(lst$dictionary$Factor)
 
   m$Description = des[as.character(m$variable)] 
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late"] = "students interrupt / teacher late"
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Early"] = "students interrupt / teacher early"
   m$Description = substr(m$Description, 0, 35)
 
   ggplot(m) + 
@@ -80,97 +83,3 @@ strip.text.x = element_text(size = 5)) +
     ylab("value") + 
     facet_wrap(~Description, scales = "free_x") 
 }
-
-var.hist = function(){
-  library(ggplot2)
-  library(reshape2)
-
-  d = imputedUSA()
-  d$id = 1:dim(d)[1]
-  d$Performance = factor(d$Performance, levels = c(-1, 1), labels = c("low", "high"))
-
-  m  = melt(d, id.vars = c("id", "Performance", "number.missing"))
-
-  dict = read.csv("../dictionaries/student-dict.csv", head = T)
-  des = as.character(dict$description)
-  vars = as.character(dict$variable)
-  names(des) = vars
-
-  m$Description = des[as.character(m$variable)] 
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late"] = "students interrupt / teacher late"
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Early"] = "students interrupt / teacher early"
-  m$Description = substr(m$Description, 0, 35)
-
-  ggplot(m) + 
-    geom_histogram(aes(x = value), binwidth = .25) + 
-    theme_bw() + 
-    theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5), strip.text.x = element_text(size = 5)) + 
-    ylab("value") + 
-    facet_wrap(~Description, scales = "free_x")
-}
-
-
-response.parcoord = function(){
-  library(ggplot2)
-  library(reshape2)
-
-  d = imputedUSA()
-  d$id = 1:dim(d)[1]
-  d$Performance = factor(d$Performance, levels = c(-1, 1), labels = c("low", "high"))
-
-  m  = melt(d, id.vars = c("id", "Performance", "number.missing"))
-
-  dict = read.csv("../dictionaries/student-dict.csv", head = T)
-  des = as.character(dict$description)
-  vars = as.character(dict$variable)
-  names(des) = vars
-
-  m$Description = des[as.character(m$variable)] 
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late"] = "students interrupt / teacher late"
-  m$Description[m$Description == "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Early"] = "students interrupt / teacher early"
-  m$Description = substr(m$Description, 0, 35)
-
-  ggplot(m) + 
-    geom_boxplot(aes(x = Performance, y = value)) + 
-    geom_point(aes(x = Performance, y = value), alpha = 0.25) + 
-    theme_bw() + 
-    theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5), strip.text.x = element_text(size = 5)) + 
-    ylab("value") + 
-    facet_wrap(~Description, scales = "free_x")
-}
-
-mds.plot = function(){
-  library(ggplot2)
-  library(reshape2)
-  library(vegan)
-
-  d = imputedUSA()
-  d$Performance = factor(d$Performance, levels = c(-1, 1), labels = c("low", "high"))
-
-  wch = sample.int(dim(d)[1], 250)
-  d = d[wch,]
-
-  x = d[, !(colnames(d) %in% c("Performance", "number.missing"))]
-  
-  f = "../cache/mds.rds"
-  if(file.exists(f)){
-    x.mds = readRDS(f)
-  } else {
-    x.mds<-metaMDS(dist(x), k=2) 
-    saveRDS(x.mds, f)
-  }
-  colnames(x.mds$points)<-c("MDS1", "MDS2") 
-  df = data.frame(Performance = d$Performance, x.mds$points)
-  qplot(MDS1, MDS2, data=df, color=Performance) + theme(aspect.ratio=1)
-}
-
-varcor = function(){
-  library(ggplot2)
-  d = imputedUSA()
-  x = d[, !(colnames(d) %in% c("Performance", "number.missing"))]
-
-  m = cor(x)
-  v = m[lower.tri(m)]
-  qplot(v, geom = "histogram", binwidth = .05)
-}
-

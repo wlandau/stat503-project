@@ -5,8 +5,8 @@ impute = function(lst, max.na){
   y = lst$y
 
   nas = apply(x, 1, function(v){sum(is.na(v))})
-  keep = nas <= max.na
 
+  keep = nas <= max.na
   x = x[keep, ]
   y = y[keep]
   nas = nas[keep]
@@ -21,7 +21,7 @@ impute = function(lst, max.na){
   list(x = x.num, y = y, y.num = y.num, dictionary = lst$dictionary, num.missing = nas)
 }
 
-getSubset = function(issue = "top_20", n = 10, max.na = n/2){
+getSubset = function(issue = "top_20", n = 20, max.na = floor(0.75*n)){
   f = paste("../cache/imputed_", issue, ".rds", sep="")
   if(file.exists(f))
     return(readRDS(f))

@@ -171,10 +171,10 @@ student = function(){
   Description = gsub("\x92", "", Description)
 
   if(Description[83] == Description[226])
-    Description[226] = "Perceived Control - Can Succeed with Enough Effort (rep 2)"
+    Description[226] = "Perceived ctrl - Succeed w/ Effort (rep 2)"
 
-  Description[Factor == "ST84Q01"] = "Class Mngmt: Students Interrupt/Teacher Early"
-  Description[Factor == "ST84Q03"] = "Class Mngmt: Students Interrupt/Teacher Late"
+  Description[Factor == "ST84Q01"] = "Teacher Early/Students Interrupt"
+  Description[Factor == "ST84Q03"] = "Teacher Late/Students Interrupt"
 
   remove = grepl("Self-Efficacy", Description) | 
       grepl("Familiarity with", Description) |
