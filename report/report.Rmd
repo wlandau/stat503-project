@@ -19,11 +19,10 @@ knitr::opts_knit$set(eval.after = 'fig.cap')
 
 ```{r sources}
 for(f in paste("../R/", c(
-  "issue-groupings",
-  "getData",
-  "explore",
-  "explore_matching",
-  "explore_imputed"
+  "student",
+  "issue",
+  "subsets",
+  "explore"
 ), ".R", sep=""))
   source(f)
 ```
@@ -58,10 +57,9 @@ In the context of prediction, I now have a response variable with two possible v
   pvcor()
 ```
 
+# The best general issues for predicting success
 
-# The best factors for predicting success
-
-In this section, I look for the factors, conditions, general issues, etc. that best separate successful students from those who struggle.
+In this section, I attempt to find the general issues that have the highest potential of distinguishing successful students from those who struggle.
 
 ## Ranking individual predictor variables
 
@@ -83,81 +81,17 @@ One can interpret the matching heuristic as the most optimistic rate of correct 
 Figure \ref{fig:allmatchings} shows the matching heuristics of the 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are "How many books at home" (censored) and "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late".
 
 ```{r allmatchings, fig.cap="\\label{fig:allmatchings} matching heuristics of all 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are \"How many books at home\" (censored) and \"Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late\"."}
-matchingHist()
+matching.hist()
 ```
 
-Figure \ref{fig:issue} shows the matching scores of the 210 variables, but this time, the variables are grouped by the general issues they cover, such as possessions, attitude, and parental backgrounds. Here, we can get a general picture of which issues matter in the sample of USA students. Academic habits outside school, school-related possessions, and attendance/truancy seem to be most related to performance, although there are few variables on these topics. There is a lot of variety among the attitude and teaching variables, and most of the survey questions seem to cover these issues. Many attitude and teaching questions are important, and will be used in the classifiers developed later. Interestingly, gender, course-content, and sociality (variables that attempt to measure the quality of students' social lives and social norms about school) were not very important. The parent-related variables seem largely split two ways, but this split does not separate mother-related variables from father-related ones.
+Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. 
 
-```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, but this time, with the variables grouped by the general issues they cover, such as possessions, attitude, and parental backgrounds. Here, we can get a general picture of which issues matter in the sample of USA students. Academic habits outside school, school-related possessions, and attendance/truancy seem to be most related to performance, although there are few variables on these topics. There is a lot of variety among the attitude and teaching variables, and most of the survey questions seem to cover these issues. Many attitude and teaching questions are important, and will be used in the classifiers developed later. Interestingly, gender, course-content, and sociality (variables that attempt to measure the quality of students' social lives and social norms about school) were not very important. The parent-related variables seem largely split two ways, but this split does not separate mother-related variables from father-related ones."}
-explore_by_issue()
+```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections."}
+plot.matching.by.issue()
 ```
 
-## Variable selection and imputation
+# Focusing on the key issues and imputation
 
-Figure \ref{fig:keepvars} shows the variables with the top 20 matching scores calculated in the previous section. I will use these to build a classifier.
-
-```{r keepvars, fig.cap="\\label{fig:keepvars} variables with the top 20 matching scores. I will use these to build classifiers."}
-student.factor.matchings.plot(n = 20, y.arg = "Description")
-```
-
-Unfortunately, even with a reduction in the number of variables, there are still a lot of missing values. Figure \ref{fig:studentmiss} show the number of missing values for each student, and Figure \ref{fig:missing} shows the percentage of missing values within each variable. The figures lead to the following imputation strategy:
-
-
-```{r studentmiss, fig.cap="\\label{fig:studentmiss} number of missing values for each student (after selecting 20 variables to build a classifier)."}
-missingByStudent()
-```
-
-```{r missing, fig.cap="\\label{fig:missing} Histogram of the percentage of missing values within each of the 20 selected predictor variables. Most variables are missing about a third of their values."}
-missing.hist()
-```
-
-1. Remove the students who missed more than 13 questions (only 3.4\% of USA students). The resulting dataset 5052 students and no missing values. In Figure \ref{fig:moremissing}, I determine that no more students need to be removed for the imputation to be reasonable. 
-2. Put all factors on a numeric scale such that the natural ordering of factor levels is preserved. (All factors are ordinal.) Center and scale the predictor variables, and denote student performance by 1 and -1 for high-performing and low-performing students, respectively.
-3. Impute the remaining missing values with nearest neighbor imputation on the 20 predictor variables. I use the ``knnImputation`` function in the ``DMwR`` [@DMwR] package (setting the number of neighbors to 10).
-
-
-```{r moremissing, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:moremissing} Before imputation, I removed all the students with more than 15 missing values. The purpose of this plot is to determine if I should have reduced this per-student missing value threshold to 11. In each panel, I plot a predictor variable for students with more than 11 missing values and for students with less than 12 missing values. For each variable, the ranges of the variables are nearly the same, and most of the corresponding quartiles are nearly the same. Hence, the imputation succeeded, and I do not need to remove any more students."}
-more.missing.parcoord()
-```
-
-
-
-
-## Exploring the imputed data
-
-
-Figure \ref{fig:var_hist} shows histograms of all the predictor variables. The nearest-neighbor imputation smoothed out many of the values so that there is some appearance of a continuous scale. Still, the original variables were discrete, so we see 2 to 4 peaks for each histogram. Model-based clustering with a mixture of normal distributions would not be prudent for this data.
-
-```{r var_hist, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:var_hist} histograms of all the predictor variables. The nearest-neighbor imputation smoothed out many of the values so that there is some appearance of a continuous scale. Still, the original variables were discrete, so we see 2 to 4 peaks for each histogram. Model-based clustering with a mixture of normal distributions would not be prudent for this data."}
-var.hist()
-```
-
-
-Figure \ref{fig:response_parcoord} plots each predictor variable versus student performance (high or low). All of the variables are associated with student performance, and for some variables, performance-specific interquartile regions do not overlap. Figure \ref{fig:varcor} shows the pairwise correlations among each of the predictor variables. Most correlations are acceptably close to zero. It seems reasonable to keep all 20 predictor variables.
-
-```{r varcor, fig.cap = "\\label{fig:varcor} pairwise correlations among each of the predictor variables. Most correlations are acceptably close to zero."}
-varcor()
-```
-
-```{r response_parcoord, fig.width = 8, fig.height = 8, fig.cap = "\\label{fig:response_parcoord} plots of each predictor variable versus student performance (high or low). All of the variables are associated with student performance, and for some variables, performance-specific interquartile regions do not overlap. "}
-response.parcoord()
-```
-
-20 predictor variables can be cumbersome all together, so I used multidimensional scaling to see how the data separate. The ``mds`` function in the ``vegan`` package stalled when I tried to use the full dataset, so I took a random subset of 250 students. I plot the MDS components in Figure \ref{fig:mds}, and I color the points by student performance. The data almost separate by student performance. However, the separation is not complete, and in fact, little to no natural separation or clustering in the data is visible from this plot. 
-
-```{r mds, fig.cap = "\\label{fig:mds} MDS components, where points (students) are colored by performance (high or low). The data almost separate by student performance. However, the separation is not complete, and in fact, little to no natural separation or clustering in the data is visible from this plot. "}
-mds.plot()
-```
-
-# Plan for further work
-
-
-- Run a basic clustering analysis on the 20 predictor variables in the imputed data. I will use kmeans and hierarchical clustering, and I will determine how much information about student performance these techniques recover.
-- Build a classifier on the preprocessed and imputed data using:
-    - Logistic regression
-    - Neural networks
-    - Random forests
-    - Nearest neighbors classification
 
 
 

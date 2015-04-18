@@ -1,8 +1,8 @@
-pvcor = function(){
+pvcor = function(country = "USA"){
   library(knitr)
   library(ggplot2)
 
-  stu = rawStudent()
+  stu = rawStudent(country)
   scorenames = paste(rep(paste("PV", 1:5, sep=""), each = 2), c("MATH", "READ"), sep="")
   y = stu[,scorenames]
   m = cor(y)
@@ -10,22 +10,40 @@ pvcor = function(){
   qplot(v, geom = "histogram", binwidth = .025) + xlab("correlation")
 }
 
-missing.var.hist = function(){
+matching.hist = function(country = "USA"){
   library(ggplot2)
-  x = rawStudent()
-  numna = data.frame(Missing = apply(x, 2, function(i){mean(is.na(i))}))
-  ggplot(numna) + geom_histogram(aes(x = Missing), binwidth = 0.025) + xlab("Percent Missing")
-}
-
-matching.hist = function(){
-  library(ggplot2)
-  s = student()
+  s = student(country)
   d = s$dictionary
   ggplot(d) + geom_histogram(aes(x = Matching), binwidth=.0125) + xlab("Matching heuristic")
 }
 
-top.matching.vars = function(lst = student(), n = 10, y.arg = "Description"){
+missing.var.hist = function(country = "USA"){
   library(ggplot2)
+  x = rawStudent(country)
+  numna = data.frame(Missing = apply(x, 2, function(i){mean(is.na(i))}))
+  ggplot(numna) + geom_histogram(aes(x = Missing), binwidth = 0.025) + xlab("Percent Missing")
+}
+
+plot.matching.by.issue = function(country = "USA"){
+  library(ggplot2)
+  library(plyr)
+
+  lst = student(country)
+  d = lst$dictionary
+
+  order.by.issue = ddply(d, "Issue", function(df){
+    data.frame(Issue = df$Issue[1], Matching = quantile(df$Matching, 0.75))
+  })
+
+  d$Issue = ordered(d$Issue, levels = order.by.issue$Issue[order(order.by.issue$Matching)])
+
+  ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
+}
+
+top.matching.vars = function(country = "USA", n = 10, y.arg = "Description"){
+  library(ggplot2)
+
+  lst = student(country)
 
   d = lst$dictionary
   d = d[order(d$Matching, decreasing = T),]
@@ -39,20 +57,7 @@ top.matching.vars = function(lst = student(), n = 10, y.arg = "Description"){
   pl
 }
 
-plot.matching.by.issue = function(lst = student()){
-  library(ggplot2)
-  library(plyr)
 
-  d = lst$dictionary
-
-  order.by.issue = ddply(d, "Issue", function(df){
-    data.frame(Issue = df$Issue[1], Matching = quantile(df$Matching, 0.75))
-  })
-
-  d$Issue = ordered(d$Issue, levels = order.by.issue$Issue[order(order.by.issue$Matching)])
-
-  ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
-}
 
 imputation.check = function(lst = getSubset(), new.max.na = 11){
   library(ggplot2)
