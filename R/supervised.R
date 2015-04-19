@@ -42,16 +42,10 @@ error.rates = function(country = "USA", .issue = "top_20"){
   yhat = predict(rf, newdata = test)
   err["randomForest"] = mean(yhat != test$y)
 
-# randomForest(ntree = 10e4)
-
-  rf = randomForest(y~., data = train, ntree = 10e4)
-  yhat = predict(rf, newdata = test)
-  err["randomForest(ntree = 10e4)"] = mean(yhat != test$y)
-
 # bagging
 
   m = ncol(train) - 1
-  rf = randomForest(y~., data = train, ntree = 10e4, mtry = m)
+  rf = randomForest(y~., data = train, mtry = m)
   yhat = predict(rf, newdata = test)
   err["bagging"] = mean(yhat != test$y)
 
@@ -118,4 +112,23 @@ error.rates = function(country = "USA", .issue = "top_20"){
   }
 
   err
+}
+
+err.one.country = function(country = "USA", issues = c("top_20", "teaching", "attitude-interest", "parent.backgrounds")){
+  library(ggplot2)
+
+  f = paste("../cache/err_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
+  if(file.exists(f)){
+    err = readRDS(f)
+  } else {
+    err = data.frame(Misclassification = c(), Method = c(), Issue = c())
+    for(i in issues){
+      e = error.rates(country, i)
+      err = rbind(err, data.frame(Misclassification = e, Method = names(e), Issue = i))
+    }
+    saveRDS(err, f)
+  }
+
+  ggplot(err) + 
+    geom_line(aes(x = Method, y = Misclassification, group = Issue, color = Issue))
 }
