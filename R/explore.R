@@ -51,40 +51,50 @@ matching.dot.plot = function(country = "USA", .issue = "top_20", n = 20, max.na 
   d$Factor = ordered(d$Factor, rev(d$Factor))
   d$Description = ordered(d$Description, rev(d$Description))
 
-  pl = ggplot(d[1:n,]) + geom_point(aes_string(x = "Matching", y = y.arg)) + xlab("Matching score") + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5))
+  pl = ggplot(d) + geom_point(aes_string(x = "Matching", y = y.arg)) + xlab("Matching score") + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5))
   if(y.arg == "Factor")
     pl = pl + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
   pl
 }
 
+subset.missing.hist = function(country = "USA", .issue = "top_20", n = 20, max.na = floor(0.75*n), by = "student"){
+  library(ggplot2)
 
+  lst = getSubset(country = country, .issue = .issue, n = n, max.na = max.na)
 
-imputation.check = function(lst = getSubset(), new.max.na = 11){
+  if(by == "student"){
+    ggplot(data.frame(nm = lst$na.student)) + 
+      geom_histogram(aes(x = nm), binwidth = 1) + 
+      xlab("Number of missing values for each student")
+  } else {
+    ggplot(data.frame(nm = lst$na.variable)) + 
+      geom_histogram(aes(x = nm), binwidth = .05) + 
+      xlab("Percentage of missing values for each variable")
+  }
+}
+
+imputation.check = function(country = "USA", .issue = "top_20", n = 20, max.na = floor(0.75*n)){
   library(ggplot2)
   library(reshape2)
   library(gdata)
 
-  x = lst$x
-  x$id = 1:dim(x)[1]
-  x$missing = lst$num.missing > new.max.na
-  x$missing = factor(x$missing, levels = c(T, F), labels = paste(c(">", "<="), new.max.na))
-  x$Success = lst$y
+  lst = getSubset(country = country, .issue = .issue, n = n, max.na = max.na)
+  colnames(lst$x) = colnames(lst$x.na) = lst$dictionary$Description 
 
-  m  = melt(x, id.vars = c("id", "Success", "missing"))
+  m1  = melt(lst$x, id.vars = NULL)
+  m2  = melt(lst$x.na, id.vars = NULL)
+  m2 = subset(m2, complete.cases(m2))
 
-  des = lst$dictionary$Description
-  names(des) = as.character(lst$dictionary$Factor)
+  m1$dataset = "Imputed"
+  m2$dataset = "Original"
 
-  m$Description = des[as.character(m$variable)] 
-  m$Description = substr(m$Description, 0, 35)
+  m = rbind(m1, m2)
 
   ggplot(m) + 
-    geom_boxplot(aes(x = missing, y = value)) + 
-    geom_point(aes(x = missing, y = value), alpha = 0.25) + 
+    geom_boxplot(aes(x = dataset, y = value)) + 
+    geom_point(aes(x = dataset, y = value), alpha = 0.25) + 
     theme_bw() + 
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5),
 strip.text.x = element_text(size = 5)) + 
-    xlab("Number of survey question missing values") +
-    ylab("value") + 
-    facet_wrap(~Description, scales = "free_x") 
+    facet_wrap(~variable, scales = "free_x") 
 }

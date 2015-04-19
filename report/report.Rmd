@@ -101,7 +101,7 @@ The previous section established that teaching, attitude/interest/motivation, an
 The teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
 
 ```{r usateaching, fig.cap="\\label{fig:usateaching}  For the USA teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
-matching.dot.plot(country = "USA", .issue = "teaching", n = 20, max.na = 15)
+matching.dot.plot(country = "USA", .issue = "teaching")
 ```
 
 ### Attitude/interest/motivation
@@ -109,7 +109,7 @@ matching.dot.plot(country = "USA", .issue = "teaching", n = 20, max.na = 15)
 These variables are student self-reported measures of perceived control, work ethic, motivation, attitude towards school, anxiety, attributions to failure, and perseverance. For the attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown in Figure \ref{fig:usaattitude}.
 
 ```{r usaattitude, fig.cap="\\label{fig:usaattitude}  For the USA attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown here."}
-matching.dot.plot(country = "USA", .issue = "attitude-interest", n = 20, max.na = 15)
+matching.dot.plot(country = "USA", .issue = "attitude-interest")
 ```
 
 ### Parental backgrounds
@@ -117,7 +117,7 @@ matching.dot.plot(country = "USA", .issue = "attitude-interest", n = 20, max.na 
 The parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript "ISCED" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
 
 ```{r usaparent, fig.cap="\\label{fig:usaparent}  The parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. I use all 15 of these variables for the parental backgrounds dataset, shown here."}
-matching.dot.plot(country = "USA", .issue = "parent.backgrounds", n = 15, max.na = 12)
+matching.dot.plot(country = "USA", .issue = "parent.backgrounds")
 ```
 
 
@@ -126,8 +126,31 @@ matching.dot.plot(country = "USA", .issue = "parent.backgrounds", n = 15, max.na
 For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown in Figure \ref{fig:usatop20}.
 
 ```{r usatop20, fig.cap="\\label{fig:usatop20} For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown here."}
-matching.dot.plot(country = "USA", .issue = "top_20", n = 20, max.na = 15)
+matching.dot.plot(country = "USA", .issue = "top_20")
 ```
+
+
+## Imputation
+
+Each of the four datasets above has missing values, before I can classify students, I need to impute them. Here, I carry out an 10-nearest-neighbors imputation for the "top 20 variables" USA dataset. I do not show the imputation for the other 3 datasets here because these cases are similar.
+
+Figure \ref{fig:navariable} shows that many variables have an entire third of their values missing, so the imputation process is messy. Some students have an unmanageably high number of missing values, as seen in Figure \ref{fig:nastudent}, and these students need to be removed. I make the choice to remove the small percentage of students (less than 4\%) with over 15 missing values. This cutoff of 15 has the advantage of keeping as many students as seems practical, but it may be too high: imputing too many missing values could distort the data. Hence, I check that the summary information for the imputed data is the same as the summary information of the original data. Figure \ref{fig:imputationcheck} shows that the ranges are the same between the imputed and non-imputed versions, and that most of the quartiles are the same. The 10-nearest-neighbors imputation was a success.
+
+Although it would be cumbersome to show here, I imputed and checked the other three datasets analogously. For the teaching and attitude/interest/motivation datasets, I removed students with more than 15 missing values. For the parent backgrounds dataset, which had 15 predictor variables, I removed students with more than 12 missing values.
+
+```{r navariable, fig.cap="\\label{fig:navariable} percentage of missing values for each variable in the \"Top 20 variables\" USA dataset."}
+subset.missing.hist(by = "variable")
+```
+
+```{r nastudent, fig.cap="\\label{fig:nastudent} number of missing values per student in the \"Top 20 variables\" USA datset."}
+subset.missing.hist(by = "student")
+```
+
+```{r imputationcheck, fig.height = 8, fig.width = 8, fig.cap="\\label{fig:imputationcheck} Here, I check that the summary information for the imputed data is the same as the summary information of the original data (\"Top 20 variables\" USA data). The ranges are the same between the imputed and non-imputed versions, and most of the quartiles are the same. The 10-nearest-neighbors imputation was a success."}
+imputation.check()
+```
+
+
 
 
 
