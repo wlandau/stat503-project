@@ -3,7 +3,7 @@ title: "What distinguishes high-performing students?"
 author: Will Landau
 date: April 25, 2015
 output: 
-  pdf_document:
+  html_document:
     fig_caption: true
     number_sections: true
     toc: true
