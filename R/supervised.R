@@ -24,6 +24,7 @@ error.rates = function(country = "USA", .issue = "top_20"){
   test.num = d.num[!t,]
 
   err = c()
+  m = ncol(train) - 1
 
 # logit
 
@@ -45,10 +46,9 @@ error.rates = function(country = "USA", .issue = "top_20"){
 
 # bagging
 
-  m = ncol(train) - 1
-  rf = randomForest(y~., data = train, mtry = m)
-  yhat = predict(rf, newdata = test)
-  err["bagging"] = mean(yhat != test$y)
+#  rf = randomForest(y~., data = train, mtry = m)
+#  yhat = predict(rf, newdata = test)
+#  err["bagging"] = mean(yhat != test$y)
 
 # neuralNet(size = 2)
 

@@ -85,9 +85,9 @@ Figure \ref{fig:allmatchings} shows the matching heuristics of the 210 predictor
 matching.hist()
 ```
 
-Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. It is important to recognize here, however, that these issues have the most variables, and their apparent importance could just be due to bias in the design of the PISA survey.
+Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The "number of books at home" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. 
 
-```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The three topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. These three issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. It is important to recognize here, however, that these issues have the most variables, and their apparent importance could just be due to bias in the design of the PISA survey."}
+```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The \"number of books at home\" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections."}
 plot.matching.by.issue()
 ```
 
@@ -166,24 +166,41 @@ I use each of the four datasets above to attempt to classify students according 
 
 - logistic regression.
 - a random forest with 500 trees (default in the ``randomForest`` package in R).
-- bagging (random forest with 500 trees and all variables used per tree).
 - neural networks with 2, $m/4$, and $3m/4$ nodes in the hidden layer, where $m$ is the number of predictor variables.
 - support vector machines with linear, cubic, and radial kernels.
 - linear discriminant analysis.
 - quadratic discriminant analysis.
 - K nearest neighbors with $K$ = 5, 10, and 25.
 
-Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:misclassusa} shows the test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset. The parental backgrounds dataset is the least useful. 
+Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:misclassusa} shows the test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success. 
 
-```{r misclassusa, fig.cap = "\\label{fig:misclassusa} for the USA, test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset. The parental backgrounds dataset is the least useful."}
+```{r misclassusa, fig.cap = "\\label{fig:misclassusa} for the USA, test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success."}
 err.one.country()
 ```
 
-It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design. From Figure \ref{fig:issue}, teaching and attitude/motivation/interest had far more variables than any other issue, including the matter of parental backgrounds. Similarly, some survey questions may be more effective than others because some topics in education research may be more advanced than others. Alternatively, OECD employees may have simply wanted to focus on the issues they already thought were most salient. A confirmation bias is usually inevitable, but it does overemphasize the importance of hot-button issues and preclude the discovery new ones.
-
+It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and possessions, and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design, both in the number and quality of the questions targeting each issue. For example, Dana Goldstein argues in \underline{The Teacher Wars: A History of America's Most Embattled Profession} that in the United States, the public has historically placed unreasonably high levels of expectation and blame on teachers, making the issue of teacher quality even more central than otherwise in education policy debates. This backdrop may have influenced OECD employees to write more abundant, more thoughtful, and more research-backed questions about teaching than most of the other categories.
 
 # Other countries
 
+How does the USA compare to other countries? Do different factors determine success in other parts of the world? For comparison, I look at the PISA results from Japan, Germany, and Peru. Japan and the USA are frequently compared in American education news stories, Germany has a conveniently high response rate in the PISA survey, and Peru's education system famously lags behind those of other countries (with the possible exception of private schools in Lima).  
+
+## Finding the key issues
+
+Figure \ref{fig:allcountrymatch} is the analogue of Figure \ref{fig:allmatchings}, but for the USA, Japan, Germany, and Peru all together. Matching scores of individual variables are grouped by key issue and plotted. In general, teaching and attitude/interest/motivation seem to lose some of their relative importance in the other three countries, but parental backgrounds remain key. For Japan, study habits and extracurricular academic activities ("study-learn.outside.school") seem are relatively more decisive than elsewhere. Interestingly, for Germany, the "international-language" category (languages spoken at home, home countries of the parents, etc.) is extremely important, as well as attendance and truancy. For Peru, school possessions have particular importance, along with attendance and truancy. And although I do not include it for further analysis, the sociality category (sense of belonging at school, social norms about success in math, etc.) is more important for Peru than for other countries relative to the other issues.
+
+```{r allcountrymatch, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allcountrymatch} analogue of Figure \\ref{fig:allmatchings}, but for the USA, Japan, Germany, and Peru all together. Matching scores of individual variables are grouped by key issue and plotted."}
+all.matching.boxplots()
+```
+
+## Classifying students
+
+Similarly to the USA data, I build a dataset for each key issue and country and use the datasets to attempt to predict student success. For each issue, I select the 20 variables with the top matching scores (or all of the variables if there are less than 20). I remove students with more missing values than 75\% of the number of variables, and then I remove the variables that originally had more than 70\% missing values. As before, I use 10-nearest-neighbors imputation to impute missing values, and although I do not show them here, I use figures similar to Figure \ref{fig:imputationcheck} to verify that all imputations are successful. After imputation, I train multiple classifiers on 75\% of the data and then test on the remaining 25\%. 
+
+```{r allerr, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr}"}
+all.err()
+```
+
+Figure \ref{fig:allerr} is the international analogue of Figure \ref{fig:misclassusa}, showing the test misclassification rates for each issue in each country. 
 
 
 

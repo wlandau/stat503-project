@@ -13,7 +13,8 @@ impute = function(lst, max.na){
   na.student.keep = na.student[keep]
 
   keep = na.variable < 0.7
-  x = x[, keep]
+  x = x[,keep]
+  lst$dictionary = lst$dictionary[keep,]
 
   x.num = as.data.frame(sapply(x, function(v){
     scale(as.numeric(factor(v, levels = levels(v), labels = 1:length(levels(v)))))
