@@ -101,42 +101,42 @@ The previous section established that teaching, attitude/interest/motivation, an
 
 ### Teaching
 
-The teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
+The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
 
-```{r usateaching, fig.cap="\\label{fig:usateaching}  For the USA teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
+```{r usateaching, fig.cap="\\label{fig:usateaching} The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
 matching.dot.plot(country = "USA", .issue = "teaching")
 ```
 
 ### Attitude/interest/motivation
 
-These variables are student self-reported measures of perceived control, work ethic, motivation, attitude towards school, anxiety, attributions to failure, and perseverance. For the attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown in Figure \ref{fig:usaattitude}.
+The USA attitude/interest/motivation variables are student self-reported measures of perceived control, work ethic, motivation, attitude towards school, anxiety, attributions to failure, and perseverance. For the attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown in Figure \ref{fig:usaattitude}.
 
-```{r usaattitude, fig.cap="\\label{fig:usaattitude}  For the USA attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown here."}
+```{r usaattitude, fig.cap="\\label{fig:usaattitude} The USA attitude/interest/motivation variables are student self-reported measures of perceived control, work ethic, motivation, attitude towards school, anxiety, attributions to failure, and perseverance. For the attitude/interest/motivation dataset, I take the variables in this area with the top 20 matching scores, shown here."}
 matching.dot.plot(country = "USA", .issue = "attitude-interest")
 ```
 
 ### Parental backgrounds
 
-The parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript "ISCED" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
+The USA parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript "ISCED" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
 
-```{r usaparent, fig.cap="\\label{fig:usaparent}  The parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. I use all 15 of these variables for the parental backgrounds dataset, shown here."}
+```{r usaparent, fig.cap="\\label{fig:usaparent} The USA parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript \"ISCED\" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown here."}
 matching.dot.plot(country = "USA", .issue = "parent.backgrounds")
 ```
 
 
 ### School-related possessions
 
-The school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown in Figure \ref{fig:usapossess}.
+The USA school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown in Figure \ref{fig:usapossess}.
 
-```{r usapossess, fig.cap="\\label{fig:usapossess}  The school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown here."}
+```{r usapossess, fig.cap="\\label{fig:usapossess}  The USA school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown here."}
 matching.dot.plot(country = "USA", .issue = "school.possessions")
 ```
 
 ### Top 20 variables
 
-For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown in Figure \ref{fig:usatop20}.
+For the sake of comparison, for the USA, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown in Figure \ref{fig:usatop20}.
 
-```{r usatop20, fig.cap="\\label{fig:usatop20} For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown here."}
+```{r usatop20, fig.cap="\\label{fig:usatop20} For the sake of comparison, for the USA, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown here."}
 matching.dot.plot(country = "USA", .issue = "top_20")
 ```
 
@@ -149,11 +149,11 @@ Figure \ref{fig:navariable} shows that many variables have an entire third of th
 
 Although it would be cumbersome to show here, I imputed and checked the other three datasets analogously. For the teaching and attitude/interest/motivation datasets, I removed students with more than 15 missing values. For the parent backgrounds dataset, which had 15 predictor variables, I removed students with more than 12 missing values. For the school-related possessions dataset, I used all 13 predictor variables and removed students with more than 9 missing values.
 
-```{r navariable, fig.cap="\\label{fig:navariable} percentage of missing values for each variable in the \"Top 20 variables\" USA dataset."}
+```{r navariable, fig.cap="\\label{fig:navariable} percentage of missing values for each variable in the \"Top 20 variables\" USA dataset. Many variables have an entire third of their values missing, so the imputation process is messy. "}
 subset.missing.hist(by = "variable")
 ```
 
-```{r nastudent, fig.cap="\\label{fig:nastudent} number of missing values per student in the \"Top 20 variables\" USA datset."}
+```{r nastudent, fig.cap="\\label{fig:nastudent} number of missing values per student in the \"Top 20 variables\" USA dataset.  Some students have an unmanageably high number of missing values."}
 subset.missing.hist(by = "student")
 ```
 
@@ -190,7 +190,7 @@ How does the USA compare to other countries? Do different factors determine succ
 
 Figure \ref{fig:allcountrymatch} is the analogue of Figure \ref{fig:allmatchings}, but for the USA, Japan, Germany, and Peru all together. Matching scores of individual variables are grouped by key issue and plotted. In general, teaching and attitude/interest/motivation seem to lose some of their relative importance in the other three countries, but parental backgrounds remain key. For Japan, study habits and extracurricular academic activities ("study-learn.outside.school") seem are relatively more decisive than elsewhere. Interestingly, for Germany, the "international-language" category (languages spoken at home, home countries of the parents, etc.) is extremely important, as well as attendance and truancy. For Peru, school possessions have particular importance, along with attendance and truancy. And although I do not include it for further analysis, the sociality category (sense of belonging at school, social norms about success in math, etc.) is more important for Peru than for other countries relative to the other issues.
 
-```{r allcountrymatch, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allcountrymatch} analogue of Figure \\ref{fig:allmatchings}, but for the USA, Japan, Germany, and Peru all together. Matching scores of individual variables are grouped by key issue and plotted."}
+```{r allcountrymatch, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allcountrymatch} analogue of Figure \\ref{fig:allmatchings}, but for the USA, Japan, Germany, and Peru all together. Matching scores of individual variables are grouped by key issue and plotted. In general, teaching and attitude/interest/motivation seem to lose some of their relative importance in the other three countries, but parental backgrounds remain key. For Japan, study habits and extracurricular academic activities (\"study-learn.outside.school\") seem are relatively more decisive than elsewhere. Interestingly, for Germany, the \"international-language\" category (languages spoken at home, home countries of the parents, etc.) is extremely important, as well as attendance and truancy. For Peru, school possessions have particular importance, along with attendance and truancy. And although I do not include it for further analysis, the sociality category (sense of belonging at school, social norms about success in math, etc.) is more important for Peru than for other countries relative to the other issues."}
 all.matching.boxplots()
 ```
 
@@ -199,9 +199,9 @@ all.matching.boxplots()
 Similarly to the USA data, I build a dataset for each key issue and country and use the datasets to attempt to predict student success. For each issue, I select the 20 variables with the top matching scores (or all of the variables if there are less than 20). I remove students with more missing values than 75\% of the number of variables, and then I remove the variables that originally had more than 70\% missing values. As before, I use 10-nearest-neighbors imputation to impute missing values, and although I do not show them here, I use figures similar to Figure \ref{fig:imputationcheck} to verify that all imputations are successful. After imputation, I train multiple classifiers on 75\% of the data and then test on the remaining 25\%. 
 
 
-Figure \ref{fig:allerr2} also show the misclassification rates for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. Below, I profile each country according to the figure.
+Figure \ref{fig:allerr2} also show the misclassification rates for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. Below, I make observations about each country according to the figure.
 
-```{r allerr2, warning = F, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr2} misclassification rates for each country, faceted to compare the relative importance of key issues across countries."}
+```{r allerr2, warning = F, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr2} misclassification rates for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. In the \"Classifying students\" subsection of the \"Other countries\" section, I make observations about each country according to this figure."}
 err.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
 ```
 
