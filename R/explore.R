@@ -94,7 +94,7 @@ imputation.check = function(country = "USA", .issue = "top_20", n = 20, max.na =
 
   ggplot(m) + 
     geom_boxplot(aes(x = dataset, y = value), outlier.size = 0) + 
-    geom_jitter(aes(x = dataset, y = value), alpha = 0.5) + 
+    geom_point(aes(x = dataset, y = value), alpha = 0.5) + 
     theme_bw() + 
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5),
 strip.text.x = element_text(size = 5)) + 

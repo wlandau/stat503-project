@@ -30,8 +30,7 @@ for(f in paste("../R/", c(
 
 # Introduction 
 
-Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., al of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire.
-
+Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., al of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire. I use this process to look for the most decisive issues in determining student success, first for the USA, and then for other countries. The goal is to find the next logical steps to improve education policy.
 
 
 # A first cleanup: getting ready to explore
@@ -199,7 +198,7 @@ Similarly to the USA data, I build a dataset for each key issue and country and 
 
 Figure \ref{fig:allerr2} also show the misclassification rates for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. Below, I profile each country according to the figure.
 
-```{r allerr2, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr2} misclassification rates for each country, faceted to compare the relative importance of key issues across countries."}
+```{r allerr2, warning = F, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr2} misclassification rates for each country, faceted to compare the relative importance of key issues across countries."}
 err.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
 ```
 
@@ -217,17 +216,17 @@ Germany is very much like the USA in that teaching quality is the most decisive 
 
 ### Peru
 
-Teaching quality was not as decisive in the USA, but still is important. Attitude, parental backgrounds, possessions, and attendance were all more decisive in Peru than in the other three countries. Poverty is a limiting factor here, and part of the solution may be to supply schools and aid in curriculum design on a massive scale. Not much can be done about parental backgrounds except maybe adult education, which is far less common than the education of children and teens, but mentorship programs could help put students on different academic and professional tracks than their parents.
+Teaching quality was not as decisive in the USA, but still is important. Attitude, parental backgrounds, possessions, and attendance were all more decisive in Peru than in the other three countries. Wealth inequality is a limiting factor here, and part of the solution may be to supply schools and aid in curriculum design on a massive scale. Not much can be done about parental backgrounds except maybe adult education, which is far less common than the education of children and teens, but mentorship programs could help put students on different academic and professional tracks than their parents.
 
 
 
 # Conclusion
 
-
+The PISA dataset is messy, but there's a story here. PISA surveyors focused most of their questions on the quality of teaching and the attitudes of students, both of which were at least somewhat important for the success of students in The United States, Japan, Germany, and Peru. In The United States, teaching quality was the most decisive factor in determining student success,  more decisive in the USA than in the other three countries. In Germany, the deciding factors are similar, Peru's deciding factors are more material and familial than elsewhere, and Japan's students are difficult to classify based on the usual suspects. The key issues targeted above could very well be relative strengths or weaknesses as reflected by the misclassification rates above. The wealth inequality obstacle in Peru is obvious both in the data and in real life, and the teaching quality debate rages in America. Alternatively, the findings could all be artifacts of the PISA design, products of the biases and preferences of OECD employees, or reflections of the differences in response rates among different countries. In the most optimistic interpretation, these results begin to point to the next logical steps to improve education policy.
 
 
 # Acknowledgements
 
-I would like to thank Dr. Cook for steering me in the right direction. The PISA data is messy and cumbersome, and the guidance is very appreciated.
+I would like to thank Dr. Cook for steering me in the right direction. The PISA data is cumbersome, and the guidance is very appreciated.
 
 # References
