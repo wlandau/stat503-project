@@ -6,6 +6,7 @@ output:
   pdf_document:
     fig_caption: true
     number_sections: true
+    toc: true
 bibliography: report.bib
 ---
 
@@ -28,6 +29,8 @@ for(f in paste("../R/", c(
   source(f)
 ```
 
+\newpage
+
 # Introduction 
 
 Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., al of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire. I use this process to look for the most decisive issues in determining student success, first for the USA, and then for other countries. The goal is to find the next logical steps to improve education policy.
@@ -35,7 +38,7 @@ Which factors best separate successful students from those who struggle? How wel
 
 # A first cleanup: getting ready to explore
 
-The student-specific 2012 PISA dataset is large and messy, and it needs to be cleaned and subsetted both before and after exploratory analysis. For example, to save computing time, and because overall pedagogy and the survey's implementation are different among different countries, only students from the United States will be examined here.
+The student-specific 2012 PISA dataset is large and messy, and it needs to be cleaned and subsetted both before and after exploratory analysis. For example, to save computing time, and because overall pedagogy and the survey's implementation are different among different countries, only students from the United States will be examined until the "Other Countries" section.
 
 ## Variables for predicting success
 
@@ -169,7 +172,7 @@ I use each of the four datasets above to attempt to classify students according 
 - support vector machines with linear, cubic, and radial kernels (``e1071`` R package [@e1071]).
 - linear discriminant analysis (``MASS`` package in R [@MASS]).
 - quadratic discriminant analysis (``MASS`` package in R [@MASS]).
-- K nearest neighbors with $K$ = 5, 10, and 25 (``class`` package in R [@class]).
+- K nearest neighbors with $K$ = 5, 10, and 25 (``class`` package in R [@MASS]).
 
 Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:misclassusa} shows the test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success. 
 
@@ -227,6 +230,6 @@ The PISA dataset is messy, but there's a story here. PISA surveyors focused most
 
 # Acknowledgements
 
-I would like to thank Dr. Cook for steering me in the right direction. The PISA data is cumbersome, and the guidance is very appreciated. In addition to core R [@R], I used the packages ``class`` [@class], ``DMwR`` [@DMwR], ``e1071`` [@e1071], ``gdata`` [@gdata], ``ggplot2`` [@ggplot2], ``gridExtra`` [@gridExtra], ``knitr`` [@knitr], ``MASS`` [@MASS], ``nnet`` [@nnet], ``plyr`` [@plyr], ``randomForest`` [@randomForest], and ``reshape2`` [@reshape2].
+I would like to thank Dr. Cook for steering me in the right direction. The PISA data is cumbersome, and the guidance is very appreciated. In addition to core R [@R], I used the packages ``class`` [@MASS], ``DMwR`` [@DMwR], ``e1071`` [@e1071], ``gdata`` [@gdata], ``ggplot2`` [@ggplot2], ``gridExtra`` [@gridExtra], ``knitr`` [@knitr], ``MASS`` [@MASS], ``nnet`` [@nnet], ``plyr`` [@plyr], ``randomForest`` [@randomForest], and ``reshape2`` [@reshape2].
 
 # References
