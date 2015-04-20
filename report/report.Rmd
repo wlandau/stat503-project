@@ -175,7 +175,7 @@ I use each of the four datasets above to attempt to classify students according 
 Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:misclassusa} shows the test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success. 
 
 ```{r misclassusa, fig.cap = "\\label{fig:misclassusa} for the USA, test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success."}
-err.one.country()
+err.plot()
 ```
 
 It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and possessions, and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design, both in the number and quality of the questions targeting each issue. For example, Dana Goldstein argues in \underline{The Teacher Wars: A History of America's Most Embattled Profession} that in the United States, the public has historically placed unreasonably high levels of expectation and blame on teachers, making the issue of teacher quality even more central than otherwise in education policy debates. This backdrop may have influenced OECD employees to write more abundant, more thoughtful, and more research-backed questions about teaching than most of the other categories.
@@ -196,11 +196,33 @@ all.matching.boxplots()
 
 Similarly to the USA data, I build a dataset for each key issue and country and use the datasets to attempt to predict student success. For each issue, I select the 20 variables with the top matching scores (or all of the variables if there are less than 20). I remove students with more missing values than 75\% of the number of variables, and then I remove the variables that originally had more than 70\% missing values. As before, I use 10-nearest-neighbors imputation to impute missing values, and although I do not show them here, I use figures similar to Figure \ref{fig:imputationcheck} to verify that all imputations are successful. After imputation, I train multiple classifiers on 75\% of the data and then test on the remaining 25\%. 
 
-```{r allerr, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr}"}
-all.err()
+
+Figure \ref{fig:allerr2} also show the misclassification rates for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. Below, I profile each country according to the figure.
+
+```{r allerr2, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:allerr2} misclassification rates for each country, faceted to compare the relative importance of key issues across countries."}
+err.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
 ```
 
-Figure \ref{fig:allerr} is the international analogue of Figure \ref{fig:misclassusa}, showing the test misclassification rates for each issue in each country. 
+### The United States
+
+Teaching quality is more decisive here than in other countries. Attitude/interest/motivation, school-related possessions, and parental backgrounds are important, but less decisive relative to other countries. Study habits outside school, course content, attendance/truancy, and international backgrounds are not plotted because they were not decisive enough to be selected as potential classifiers of students. These findings may validate the US news media's obsessive attention to teaching quality. I do not claim that teaching is lacking overall. Rather, because they predict student success more accurately than other issues, it may be the most appropriate next issue to tackle to improve US education policy.
+
+### Japan
+
+For each issue plotted, students were more difficult to classify in Japan than in other countries. It may be that teaching quality, possessions, enthusiasm, parental backgrounds, and truancy are less of a problem for Japan than in the other countries. At least, these factors are less decisive in determining student success, and the path to further innovating the Japanese education system does not lie in the usual places. The next breakthrough in Japan may be more surprising and interesting than in other countries.
+
+### Germany
+
+Germany is very much like the USA in that teaching quality is the most decisive factor plotted here relative to other countries, and that attitude/interest/motivation, school-related possessions, and parental backgrounds are important, but less decisive relative to other countries. However, a key difference between the USA and Germany is that attendance/truancy is decisive enough to be plotted. This could mean that truancy is more of a problem in Germany, or it could be that Germany executed the PISA program more thoroughly and had higher response rates.
+
+### Peru
+
+Teaching quality was not as decisive in the USA, but still is important. Attitude, parental backgrounds, possessions, and attendance were all more decisive in Peru than in the other three countries. Poverty is a limiting factor here, and part of the solution may be to supply schools and aid in curriculum design on a massive scale. Not much can be done about parental backgrounds except maybe adult education, which is far less common than the education of children and teens, but mentorship programs could help put students on different academic and professional tracks than their parents.
+
+
+
+# Conclusion
+
 
 
 
