@@ -8,7 +8,7 @@ output: ioslides_presentation
 ```{r, echo=FALSE}
 library(knitr)
 knitr::knit_hooks$set(inline = as.character)
-knitr::opts_chunk$set(cache=T, echo = F, results="hide", message=F)
+knitr::opts_chunk$set(cache=T, echo = F, fig.height = 5, results="hide", message=F)
 knitr::opts_knit$set(eval.after = 'fig.cap')
 ```
 
@@ -28,25 +28,23 @@ for(f in paste("../R/", c(
 
 - Select highest 25\% and lowest 25\% of students based on reading and math scores.
 - Response = high or low success.
-- Which types of individual survey questions correlate with success?
+- Which key factors predict success?
 
-## Matching coefficients
-
-- Variables are grouped into key issues.
+## Matching coefficients of individual survey questions
 
 ```{r usamatchissue}
 plot.matching.by.issue()
 ```
 
-## Salient issue becomes datasets to predict student success.
+## Salient issues becomes datasets to predict success.
 
 ```{r usaerr}
-err.plot()
+rate.plot()
 ```
 
 ## Other countries
 
 ```{r intlerr}
-err.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
+rate.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
 ```
  

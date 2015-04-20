@@ -1,4 +1,4 @@
-error.rates = function(country = "USA", 
+class.rates = function(country = "USA", 
 	.issue = "top_20") {
 	set.seed(0)
 	library(class)
@@ -25,7 +25,7 @@ error.rates = function(country = "USA",
 	train.num = d.num[t, ]
 	test.num = d.num[!t, ]
 
-	err = c()
+	rate = c()
 	m = ncol(train) - 1
 
 	# logit
@@ -40,20 +40,20 @@ error.rates = function(country = "USA",
 	yhat = predict(mylogit, newdata = test.num01, 
 		type = "response")
 	yhat = yhat > 0.5
-	err["logit"] = mean(yhat != test.num01$y)
+	rate["logit"] = mean(yhat == test.num01$y)
 
 	# randomForest 
 	
 	rf = randomForest(y ~ ., data = train)
 	yhat = predict(rf, newdata = test)
-	err["randomForest"] = mean(yhat != 
+	rate["randomForest"] = mean(yhat == 
 		test$y)
 
 	# bagging
 	
 	#  rf = randomForest(y~., data = train, mtry = m)
 	#  yhat = predict(rf, newdata = test)
-#  err["bagging"] = mean(yhat != test$y)
+#  rate["bagging"] = mean(yhat == test$y)
 
 	# neuralNet(size = 2)
 	
@@ -63,7 +63,7 @@ error.rates = function(country = "USA",
 	nn = nnet(f, data = train, size = 2)
 	yhat = predict(nn, newdata = test, 
 		type = "class")
-	err["neuralNet(size = 2)"] = mean(yhat != 
+	rate["neuralNet(size = 2)"] = mean(yhat == 
 		test$y)
 
 
@@ -75,7 +75,7 @@ error.rates = function(country = "USA",
 	nn = nnet(f, data = train, size = floor(m/4))
 	yhat = predict(nn, newdata = test, 
 		type = "class")
-	err["neuralNet(size = m/4)"] = mean(yhat != 
+	rate["neuralNet(size = m/4)"] = mean(yhat == 
 		test$y)
 
 	# neuralNet(size = 3m/4)
@@ -87,40 +87,40 @@ error.rates = function(country = "USA",
 		m/4))
 	yhat = predict(nn, newdata = test, 
 		type = "class")
-	err["neuralNet(size = 3*m/4)"] = mean(yhat != 
+	rate["neuralNet(size = 3*m/4)"] = mean(yhat == 
 		test$y)
 
 	# svm(linear)
 	
 	sv = svm(y ~ ., data = train, kernel = "linear")
 	yhat = predict(sv, newdata = test)
-	err["svm(linear)"] = mean(yhat != 
+	rate["svm(linear)"] = mean(yhat == 
 		test$y)
 
 	# svm(cubic)
 	
 	sv = svm(y ~ ., data = train, kernel = "polynomial")
 	yhat = predict(sv, newdata = test)
-	err["svm(cubic)"] = mean(yhat != test$y)
+	rate["svm(cubic)"] = mean(yhat == test$y)
 
 	# svm(radial)
 	
 	sv = svm(y ~ ., data = train, kernel = "radial")
 	yhat = predict(sv, newdata = test)
-	err["svm(radial)"] = mean(yhat != 
+	rate["svm(radial)"] = mean(yhat == 
 		test$y)
 
 	# lda
 	
 	ld = lda(y ~ ., data = train)
 	yhat = predict(ld, newdata = test)$class
-	err["lda"] = mean(yhat != test$y)
+	rate["lda"] = mean(yhat == test$y)
 
 	# qda
 	
 	qd = qda(y ~ ., data = train)
 	yhat = predict(qd, newdata = test)$class
-	err["qda"] = mean(yhat != test$y)
+	rate["qda"] = mean(yhat == test$y)
 
 	# nearestNeighbors
 	
@@ -128,12 +128,12 @@ error.rates = function(country = "USA",
 		yhat = knn(train[, colnames(train) != 
 			"y"], test[colnames(test) != 
 			"y"], train$y, k = k)
-		err[paste("knn(k = ", k, ")", 
-			sep = "")] = mean(yhat != 
+		rate[paste("knn(k = ", k, ")", 
+			sep = "")] = mean(yhat == 
 			test$y)
 	}
 
-	err
+	rate
 }
 
 issues.for.country = function(country = "USA") {
@@ -159,48 +159,48 @@ issues.for.country = function(country = "USA") {
 			"school.possessions"))
 }
 
-err.plot = function(countries = "USA", facet.type = "Issue") {
+rate.plot = function(countries = "USA", facet.type = "Issue") {
 	library(ggplot2)
-	df = data.frame(Misclassification = c(), Method = c(), Issue = c(), Country = c())
+	df = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
 
 	for (country in countries) {
       issues = issues.for.country(country)
-      f = paste("../cache/err_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
+      f = paste("../cache/rate_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
 
 	  if (file.exists(f)) {
-	    err = readRDS(f)
+	    rate = readRDS(f)
 	  } else {
-		err = data.frame(Misclassification = c(), Method = c(), Issue = c(), Country = c())
+		rate = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
 		for (i in issues) {
-		  e = error.rates(country, i)
-		  err = rbind(err, data.frame(Misclassification = e, Method = names(e), Issue = i, Country = country))
+		  e = class.rates(country, i)
+		  rate = rbind(rate, data.frame(Rate = e, Method = names(e), Issue = i, Country = country))
 		}
-		saveRDS(err, f)
+		saveRDS(rate, f)
 	  }
 
-      df = rbind(df, err)
+      df = rbind(df, rate)
 	}
 
    if(length(unique(df$Country)) == 1){
-     pl = ggplot(df) + geom_line(aes(x = Method, y = Misclassification, group = Issue, color = Issue)) +
+     pl = ggplot(df) + geom_line(aes(x = Method, y = Rate, group = Issue, color = Issue)) +
       theme_bw() + 
-	  theme(axis.text.x = element_text(angle = -90, hjust = -0.01, vjust = 0.5))
+	  theme(axis.text.x = element_text(angle = -90, hjust = -0.01, vjust = 0.5)) + ylab("Test rate (correctness)\n")
 	}else if(facet.type == "Issue"){
      df = subset(df, !(Issue %in% c("top_20")))
      df$Issue = factor(as.character(df$Issue), levels = unique(as.character(df$Issue))) 
-     pl = ggplot(df) + geom_line(aes(x = Country, y = Misclassification, group = Method)) +
-      geom_point(aes(x = Country, y = Misclassification), alpha = 0.5) +
-      geom_boxplot(aes(x = Country, y = Misclassification), color = "blue", alpha = 0.5, outlier.size = 0) +
+     pl = ggplot(df) + geom_line(aes(x = Country, y = Rate, group = Method)) +
+      geom_point(aes(x = Country, y = Rate), alpha = 0.5) +
+      geom_boxplot(aes(x = Country, y = Rate), color = "blue", alpha = 0.5, outlier.size = 0) +
       theme_bw() + 
 	  theme(axis.text.x = element_text(angle = -90, hjust = -0.01, vjust = 0.5), strip.text.y = element_text(size = 5)) + 
-      facet_wrap(~Issue)
+      facet_wrap(~Issue) + ylab("Test rate (correctness)\n")
     }else{
      pl = ggplot(df) + 
-      geom_line(aes(x = Issue, y = Misclassification, group = Method)) +
-      geom_boxplot(aes(x = Issue, y = Misclassification), color = "blue", alpha = 0.5, outlier.size = 0) +
+      geom_line(aes(x = Issue, y = Rate, group = Method)) +
+      geom_boxplot(aes(x = Issue, y = Rate), color = "blue", alpha = 0.5, outlier.size = 0) +
       theme_bw() + 
 	  theme(axis.text.x = element_text(angle = -90, hjust = -0.01, vjust = 0.5), strip.text.y = element_text(size = 5)) + 
-      facet_wrap(~Country)
+      facet_wrap(~Country) + ylab("Test rate (correctness)\n")
     }
 
 	pl
