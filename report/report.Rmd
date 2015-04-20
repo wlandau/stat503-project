@@ -1,5 +1,5 @@
 ---
-title: "What distinguishes high-performing students?"
+title: "What distinguishes successful students?"
 author: Will Landau
 date: April 25, 2015
 output: 
