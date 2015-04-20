@@ -5,3 +5,5 @@
 local/*
 report/report_cache/*
 report/report_files/*
+slides/slides_cache/*
+slides/slides_files/*
