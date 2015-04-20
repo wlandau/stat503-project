@@ -37,7 +37,9 @@ plot.matching.by.issue = function(country = "USA"){
 
   d$Issue = ordered(d$Issue, levels = order.by.issue$Issue[order(order.by.issue$Matching)])
 
-  ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching))  + geom_point(aes(x = Issue, y = Matching), alpha = 0.5) + theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")
+  ggplot(d) + geom_boxplot(aes(x = Issue, y = Matching), outlier.size = 0) + 
+  geom_jitter(aes(x = Issue, y = Matching), alpha = 0.5) + 
+  theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + ylab("Matching score")+ labs(title = country)
 }
 
 matching.dot.plot = function(country = "USA", .issue = "top_20", n = 20, max.na = floor(0.75*n), y.arg = "Description"){
@@ -97,4 +99,15 @@ imputation.check = function(country = "USA", .issue = "top_20", n = 20, max.na =
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5),
 strip.text.x = element_text(size = 5)) + 
     facet_wrap(~variable, scales = "free_x") 
+}
+
+all.matching.boxplots = function(){
+  library(gridExtra)
+
+  p1 =  plot.matching.by.issue(country = "USA")
+  p2 =  plot.matching.by.issue(country = "Japan")
+  p3 =  plot.matching.by.issue(country = "Germany")
+  p4 =  plot.matching.by.issue(country = "Peru")
+
+  grid.arrange(p1, p2, p3, p4, ncol = 2)
 }

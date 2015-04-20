@@ -22,7 +22,8 @@ for(f in paste("../R/", c(
   "student",
   "issue",
   "subsets",
-  "explore"
+  "explore",
+  "supervised"
 ), ".R", sep=""))
   source(f)
 ```
@@ -121,6 +122,14 @@ matching.dot.plot(country = "USA", .issue = "parent.backgrounds")
 ```
 
 
+### School-related possessions
+
+The school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown in Figure \ref{fig:usapossess}.
+
+```{r usapossess, fig.cap="\\label{fig:usapossess}  The school-related possessions variables measure things like the number of books at home (highest matching score by far), number of computers, number of textbooks, access to internet, and access to study space. I use all 13 of these variables, shown here."}
+matching.dot.plot(country = "USA", .issue = "school.possessions")
+```
+
 ### Top 20 variables
 
 For the sake of comparison, I collect the variables with the top 20 matching scores out of all the usable 210 factors from the USA PISA student dataset, shown in Figure \ref{fig:usatop20}.
@@ -134,9 +143,9 @@ matching.dot.plot(country = "USA", .issue = "top_20")
 
 Each of the four datasets above has missing values, before I can classify students, I need to impute them. Here, I carry out an 10-nearest-neighbors imputation for the "top 20 variables" USA dataset. I do not show the imputation for the other 3 datasets here because these cases are similar.
 
-Figure \ref{fig:navariable} shows that many variables have an entire third of their values missing, so the imputation process is messy. Some students have an unmanageably high number of missing values, as seen in Figure \ref{fig:nastudent}, and these students need to be removed. I make the choice to remove the small percentage of students (less than 4\%) with over 15 missing values. This cutoff of 15 has the advantage of keeping as many students as seems practical, but it may be too high: imputing too many missing values could distort the data. Hence, I check that the summary information for the imputed data is the same as the summary information of the original data. Figure \ref{fig:imputationcheck} shows that the ranges are the same between the imputed and non-imputed versions, and that most of the quartiles are the same. The 10-nearest-neighbors imputation was a success.
+Figure \ref{fig:navariable} shows that many variables have an entire third of their values missing, so the imputation process is messy. Some students have an unmanageably high number of missing values, as seen in Figure \ref{fig:nastudent}, and these students need to be removed. (For some other countries, variables with over 70\% missing cases also needed to be removed, but there were no such variables for the USA.) I make the choice to remove the small percentage of students (less than 4\%) with over 15 missing values. This cutoff of 15 has the advantage of keeping as many students as seems practical, but it may be too high: imputing too many missing values could distort the data. Hence, I check that the summary information for the imputed data is the same as the summary information of the original data. Figure \ref{fig:imputationcheck} shows that the ranges are the same between the imputed and non-imputed versions, and that most of the quartiles are the same. The 10-nearest-neighbors imputation was a success.
 
-Although it would be cumbersome to show here, I imputed and checked the other three datasets analogously. For the teaching and attitude/interest/motivation datasets, I removed students with more than 15 missing values. For the parent backgrounds dataset, which had 15 predictor variables, I removed students with more than 12 missing values.
+Although it would be cumbersome to show here, I imputed and checked the other three datasets analogously. For the teaching and attitude/interest/motivation datasets, I removed students with more than 15 missing values. For the parent backgrounds dataset, which had 15 predictor variables, I removed students with more than 12 missing values. For the school-related possessions dataset, I used all 13 predictor variables and removed students with more than 9 missing values.
 
 ```{r navariable, fig.cap="\\label{fig:navariable} percentage of missing values for each variable in the \"Top 20 variables\" USA dataset."}
 subset.missing.hist(by = "variable")
@@ -151,6 +160,29 @@ imputation.check()
 ```
 
 
+## So which issue is most important?
+
+I use each of the four datasets above to attempt to classify students according to high or low academic success. I try several different classifiers, including
+
+- logistic regression.
+- a random forest with 500 trees (default in the ``randomForest`` package in R).
+- bagging (random forest with 500 trees and all variables used per tree).
+- neural networks with 2, $m/4$, and $3m/4$ nodes in the hidden layer, where $m$ is the number of predictor variables.
+- support vector machines with linear, cubic, and radial kernels.
+- linear discriminant analysis.
+- quadratic discriminant analysis.
+- K nearest neighbors with $K$ = 5, 10, and 25.
+
+Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:misclassusa} shows the test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset. The parental backgrounds dataset is the least useful. 
+
+```{r misclassusa, fig.cap = "\\label{fig:misclassusa} for the USA, test error rates of these classifiers, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset. The parental backgrounds dataset is the least useful."}
+err.one.country()
+```
+
+It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design. From Figure \ref{fig:issue}, teaching and attitude/motivation/interest had far more variables than any other issue, including the matter of parental backgrounds. Similarly, some survey questions may be more effective than others because some topics in education research may be more advanced than others. Alternatively, OECD employees may have simply wanted to focus on the issues they already thought were most salient. A confirmation bias is usually inevitable, but it does overemphasize the importance of hot-button issues and preclude the discovery new ones.
+
+
+# Other countries
 
 
 

@@ -1,4 +1,5 @@
 error.rates = function(country = "USA", .issue = "top_20"){
+  set.seed(0)
   library(class)
   library(MASS)
   library(randomForest)
@@ -114,7 +115,7 @@ error.rates = function(country = "USA", .issue = "top_20"){
   err
 }
 
-err.one.country = function(country = "USA", issues = c("top_20", "teaching", "attitude-interest", "parent.backgrounds")){
+err.one.country = function(country = "USA", issues = c("top_20", "teaching", "attitude-interest", "parent.backgrounds", "school.possessions")){
   library(ggplot2)
 
   f = paste("../cache/err_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
@@ -130,5 +131,17 @@ err.one.country = function(country = "USA", issues = c("top_20", "teaching", "at
   }
 
   ggplot(err) + 
-    geom_line(aes(x = Method, y = Misclassification, group = Issue, color = Issue))
+    geom_line(aes(x = Method, y = Misclassification, group = Issue, color = Issue)) +
+    theme_bw() + theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5)) + labs(title = country)
+}
+
+all.err = function(){
+  library(gridExtra)
+
+  p1 =  err.one.country(country = "USA", issues = c("top_20", "teaching", "attitude-interest", "parent.backgrounds", "school.possessions"))
+  p2 =  err.one.country(country = "Japan", issues = c("teaching", "attitude-interest", "parent.backgrounds", "study-learn.outside.school", "course.content", "school.possessions"))
+  p3 =  err.one.country(country = "Germany",  issues = c("teaching", "attitude-interest", "parent.backgrounds", "international-language", "attendance-truancy-repeat", "school.possessions"))
+  p4 =  err.one.country(country = "Peru", issues = c("teaching", "attitude-interest", "parent.backgrounds", "attendance-truancy-repeat", "school.possessions"))
+
+  grid.arrange(p1, p2, p3, p4, ncol = 2)
 }

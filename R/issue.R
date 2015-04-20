@@ -42,7 +42,7 @@ issue = Vectorize(function(v){
     "ST26Q14",
     paste("IC01Q", c("05", "06", "07", "08"), sep = "")
   ))
-    return("posessions.not.school")
+    return("possessions.not.school")
 
   if(v %in% c(
     "ST27Q03",
@@ -64,7 +64,7 @@ issue = Vectorize(function(v){
   ) || any(startsWith(v, c(
     "IC02", "IC06", "IC07"
   ))))
- return("school.posessions")
+ return("school.possessions")
 
   if(any(startsWith(v, c("ST29", "ST42", "ST43", "ST44", "ST46", "ST48", "ST88", "ST89", "ST91", "ST93", "IC22"))))
     return("attitude-interest")
