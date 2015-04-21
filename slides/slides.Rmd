@@ -30,13 +30,34 @@ for(f in paste("../R/", c(
 - Response = high or low success.
 - Which key factors predict success?
 
-## Matching coefficients of individual survey questions
+## Matching scores of individual survey questions
 
 ```{r usamatchissue}
 plot.matching.by.issue()
 ```
 
-## Salient issues becomes datasets to predict success.
+## Top variables on teaching quality and style
+
+```{r usateaching}
+matching.dot.plot(country = "USA", .issue = "teaching")
+```
+
+## Top variables on attitude, motivation, and interest
+
+```{r usaattitude}
+matching.dot.plot(country = "USA", "attitude-interest")
+```
+
+## Salient issues become datasets for classification.
+
+- Teaching quality and style
+- Attitude, motivation, and interest
+- Parental backgrounds
+- School-related possessions
+- top 20 variables with the highest matching scores
+
+
+## Classify students using each key issue.
 
 ```{r usaerr}
 rate.plot()
