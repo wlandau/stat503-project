@@ -117,9 +117,9 @@ matching.dot.plot(country = "USA", .issue = "attitude-interest")
 
 ### Parental backgrounds
 
-The USA parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript "ISCED" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
+The USA parental background variables measure the educational levels, job statuses, and "ISCED qualifications" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. The nondescript "ISCED qualifications" variables are barely documented, and the only levels of these factors are the unhelpful "yes" and "no".) I use all 15 of these variables for the parental backgrounds dataset, shown in Figure \ref{fig:usaparent}.
 
-```{r usaparent, fig.cap="\\label{fig:usaparent} The USA parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. Many nondescript \"ISCED\" variables are poorly documented.) I use all 15 of these variables for the parental backgrounds dataset, shown here."}
+```{r usaparent, fig.cap="\\label{fig:usaparent} The USA parental background variables measure the educational levels, job statuses, and \"ISCED qualifications\" of the parents of each student. (It's a shame that PISA does not explain what these ISCED qualifications really mean. The nondescript \"ISCED qualifications\" variables are barely documented, and the only levels of these factors are the unhelpful \"yes\" and \"no\".) I use all 15 of these variables for the parental backgrounds dataset, shown here."}
 matching.dot.plot(country = "USA", .issue = "parent.backgrounds")
 ```
 
