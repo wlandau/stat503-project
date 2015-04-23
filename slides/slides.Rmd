@@ -30,16 +30,13 @@ for(f in paste("../R/", c(
 
 ## 2012 PISA data
 
-- Take students with top 25\% and low 25\% mean test scores.
-- Response = high vs low score.
 - Which key factors predict success?
 - What is the next step for policy?
+- Predict high vs low mean test scores.
 
 ![](map.png)
 
-
-
-## Top individual survey questions
+## Top score-vs-survey correlations
 
 ```{r usaattitude}
 #matching.dot.plot(country = "USA", "top_20")
@@ -60,7 +57,7 @@ for(f in paste("../R/", c(
   d$Description = gsub("Students Are Calm/Teacher Arrives on Time", "Students calm/teacher on time", d$Description)
   d$Description = gsub("Teacher Has to Wait Until its Quiet", "Delay until quiet", d$Description)
   d$Description = gsub("Math Self-Concept - ", "Math belief: ", d$Description)
-  d$Description = gsub("Perform Poorly Regardless", "Hopeless Despite Effort", d$Description)
+  d$Description = gsub("Perform Poorly Regardless", "Belief: Effort won't pay off", d$Description)
   d$Description = gsub("Attitude towards School - Does Little to Prepare Me for Life", "Attitude: does not prepare for life", d$Description)
 
   d$Factor = ordered(d$Factor, rev(d$Factor))
@@ -69,7 +66,7 @@ for(f in paste("../R/", c(
   d = d[1:10, ]
 
   pl = ggplot(d) + geom_point(aes_string(x = "Matching", y = "Description")) + 
-    xlab("\n Matching score") + ylab("Description\n") + 
+    xlab("\n Matching coefficient") + ylab("Description\n") + 
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5, size = 20),
                axis.text.y = element_text(size = 20), 
                axis.title=element_text(size=20),
@@ -77,7 +74,7 @@ for(f in paste("../R/", c(
   pl
 ```
 
-## Top teaching variables
+## Top teaching questions
 
 ```{r usateaching}
 #matching.dot.plot(country = "USA", .issue = "teaching")
@@ -105,7 +102,7 @@ country = "USA"
 
   d = d[1:10, ]
 
-  pl = ggplot(d) + geom_point(aes_string(x = "Matching", y = "Description\n")) + xlab("\n Matching score") + 
+  pl = ggplot(d) + geom_point(aes_string(x = "Matching", y = "Description\n")) + xlab("\n Matching coefficient") + 
     theme(axis.text.x = element_text(angle = -90, hjust = -.01, vjust = .5, size = 20),
                axis.text.y = element_text(size = 20), 
                axis.title=element_text(size=20),
@@ -185,7 +182,7 @@ country = "USA"
              axis.text.y = element_text(size = 20), 
              axis.title=element_text(size=20),
              plot.title = element_text(size = 20)) + 
-  ylab("Matching score\n")+ xlab("") + labs(title = country)
+  ylab("Matching coefficient\n")+ xlab("") + labs(title = country)
 ```
 
 
