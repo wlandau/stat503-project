@@ -58,37 +58,36 @@ class.rates = function(country = "USA",
 	# neuralNet(size = 2)
 	
 	listoffactors <- colnames(lst$x)
-	f = as.formula(paste("y~", paste(listoffactors, 
-		collapse = "+")))
-	nn = nnet(f, data = train, size = 2)
-	yhat = predict(nn, newdata = test, 
-		type = "class")
-	rate["neuralNet(size = 2)"] = mean(yhat == 
-		test$y)
+	f = as.formula(paste("y~", paste(listoffactors, collapse = "+")))
+
+r1 = try(nn <- nnet(f, data = train, size = 2))
+r2 = try(yhat <- predict(nn, newdata = test, type = "class"))
+
+if(inherits(r1, "try-error") || inherits(r2, "try-error"))
+  rate["neuralNet(size = 2)"] = NA
+else
+  rate["neuralNet(size = 2)"] = mean(yhat == test$y)
 
 
 	# neuralNet(size = m/4)
 	
-	listoffactors <- colnames(lst$x)
-	f = as.formula(paste("y~", paste(listoffactors, 
-		collapse = "+")))
-	nn = nnet(f, data = train, size = floor(m/4))
-	yhat = predict(nn, newdata = test, 
-		type = "class")
-	rate["neuralNet(size = m/4)"] = mean(yhat == 
-		test$y)
+r1 = try(nn <- nnet(f, data = train, size = floor(m/4)))
+r2 = try(yhat <- predict(nn, newdata = test, type = "class"))
+
+if(inherits(r1, "try-error") || inherits(r2, "try-error"))
+  rate["neuralNet(size = m/4)"] = NA
+else
+  rate["neuralNet(size = m/4)"] = mean(yhat == test$y)
 
 	# neuralNet(size = 3m/4)
 	
-	listoffactors <- colnames(lst$x)
-	f = as.formula(paste("y~", paste(listoffactors, 
-		collapse = "+")))
-	nn = nnet(f, data = train, size = floor(3 * 
-		m/4))
-	yhat = predict(nn, newdata = test, 
-		type = "class")
-	rate["neuralNet(size = 3*m/4)"] = mean(yhat == 
-		test$y)
+r1 = try(nn <- nnet(f, data = train, size = floor(3*m/4)))
+r2 = try(yhat <- predict(nn, newdata = test, type = "class"))
+
+if(inherits(r1, "try-error") || inherits(r2, "try-error"))
+  rate["neuralNet(size = 3m/4)"] = NA
+else
+  rate["neuralNet(size = 3m/4)"] = mean(yhat == test$y)
 
 	# svm(linear)
 	
@@ -125,18 +124,32 @@ class.rates = function(country = "USA",
 	# nearestNeighbors
 	
 	for (k in c(5, 10, 25)) {
-		yhat = knn(train[, colnames(train) != 
-			"y"], test[colnames(test) != 
-			"y"], train$y, k = k)
-		rate[paste("knn(k = ", k, ")", 
-			sep = "")] = mean(yhat == 
-			test$y)
+
+print(k)
+
+		res = try(yhat <- knn(train[, colnames(train) != "y"], test[colnames(test) != "y"], train$y, k = k))
+
+    if(inherits(res, "try-error"))
+      rate[paste("knn(k = ", k, ")", sep = "")] = NA
+        else
+          rate[paste("knn(k = ", k, ")", sep = "")] = mean(yhat == test$y)
 	}
 
 	rate
 }
 
-issues.for.country = function(country = "USA") {
+issues.for.country = function(country = "USA", n) {
+if(n > 1) return(c(
+"teaching", 
+			"attitude-interest", "parent.backgrounds", 
+			"school.possessions",
+ "study-learn.outside.school", 
+			"course.content", 
+"international-language", 
+			"attendance-truancy-repeat"
+))
+   
+
 	if(country == "USA")
 		return(c("top_20", "teaching", 
 			"attitude-interest", "parent.backgrounds", 
@@ -159,21 +172,26 @@ issues.for.country = function(country = "USA") {
 			"school.possessions"))
 }
 
-rate.plot = function(countries = "USA", facet.type = "Issue") {
+rate.plot = function(countries = "USA", facet.type = "country") {
 	library(ggplot2)
 	df = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
 
 	for (country in countries) {
-      issues = issues.for.country(country)
+      issues = issues.for.country(country, length(countries))
       f = paste("../cache/rate_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
+
+cat("\n\n", country, "\n\n")
 
 	  if (file.exists(f)) {
 	    rate = readRDS(f)
 	  } else {
 		rate = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
 		for (i in issues) {
-		  e = class.rates(country, i)
-		  rate = rbind(rate, data.frame(Rate = e, Method = names(e), Issue = i, Country = country))
+
+cat("\n\n  ", paste(country, i), "\n\n")
+
+		  res = try(e <- class.rates(country, i))
+		    rate = rbind(rate, data.frame(Rate = e, Method = names(e), Issue = i, Country = country))
 		}
 		saveRDS(rate, f)
 	  }

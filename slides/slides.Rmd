@@ -12,7 +12,7 @@ output:
 ```{r, echo=FALSE}
 library(knitr)
 knitr::knit_hooks$set(inline = as.character)
-knitr::opts_chunk$set(cache=T, echo = F, fig.height = 5, results="hide", message=F)
+knitr::opts_chunk$set(cache=T, echo = F, fig.height = 5, results="hide", message=F, warning = F)
 knitr::opts_knit$set(eval.after = 'fig.cap')
 ```
 
@@ -197,7 +197,7 @@ country = countries = "USA"
 
 library(ggplot2)
 	df = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
-      issues = issues.for.country(country)
+      issues = issues.for.country(country, 1)
       f = paste("../cache/rate_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
 
 	  if (file.exists(f)) {
@@ -250,7 +250,7 @@ countries = c("USA", "Japan", "Germany", "Peru")
 	df = data.frame(Rate = c(), Method = c(), Issue = c(), Country = c())
 
 	for (country in countries) {
-      issues = issues.for.country(country)
+      issues = issues.for.country(country, 4)
       f = paste("../cache/rate_", country, "_", paste(issues, collapse = "_"), ".rds", sep = "")
 
 	  if (file.exists(f)) {
@@ -289,12 +289,12 @@ df$Issue = iss
      df = subset(df, !(Issue %in% c("Top 20")))
      df$Issue = factor(as.character(df$Issue), levels = unique(as.character(df$Issue))) 
 
- ggplot(df) + geom_line(aes(x = Country, y = Rate, group = Method)) +
-      geom_point(aes(x = Country, y = Rate), alpha = 0.5) +
-      geom_boxplot(aes(x = Country, y = Rate), color = "blue", alpha = 0.5, outlier.size = 0) +
+ ggplot(df) + geom_line(aes(x = Issue, y = Rate, group = Method)) +
+      geom_point(aes(x = Issue, y = Rate), alpha = 0.5) +
+      geom_boxplot(aes(x = Issue, y = Rate), color = "blue", alpha = 0.5, outlier.size = 0) +
       theme_bw() + 
-      facet_wrap(~Issue) + 
-      xlab("\nCountry") +
+      facet_wrap(~Country) + 
+      xlab("\nIssue") +
       ylab("Test rate (correct)\n") +
       theme(axis.text.x = element_text(angle = -90, hjust = -0.01, vjust = 0.5, size = 16), 
                  axis.text.y = element_text(size = 12),

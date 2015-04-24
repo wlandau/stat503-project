@@ -3,7 +3,7 @@ title: "What distinguishes successful students?"
 author: Will Landau
 date: April 25, 2015
 output: 
-  html_document:
+  pdf_document:
     fig_caption: true
     number_sections: true
     toc: true
@@ -14,7 +14,7 @@ bibliography: report.bib
 set.seed(0)
 library(knitr)
 knitr::knit_hooks$set(inline = as.character)
-knitr::opts_chunk$set(cache=T, fig.height = 4, echo = F, results="hide", message = F)
+knitr::opts_chunk$set(cache=T, fig.height = 4, echo = F, results="hide", message = F, warning = F)
 knitr::opts_knit$set(eval.after = 'fig.cap')
 ```
 
@@ -33,16 +33,16 @@ for(f in paste("../R/", c(
 
 # Introduction 
 
-Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., al of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire. I use this process to look for the most decisive issues in determining student success, first for the USA, and then for other countries. The goal is to find the next logical steps to improve education policy.
+Which factors best separate successful students from those who struggle? How well can we predict academic success using  conditions we can observe and control? For insight, I look at data from the Organization for Economic Co-operation and Development (OECD). In 2012, The OECD's Programme for International Student Assessment (PISA) surveyed roughly five hundred thousand, fifteen-year-old students from sixty-five economies across the globe [@oecd]. Questions measured students' reading, math, and science skills with examinations that, according to the OECD website, "are not directly linked to the school curriculum. The tests are designed to assess to what extent students at the end of compulsory education, can apply their knowledge to real-life situations and be equipped for full participation in society" [@oecd]. Students also answered an extensive background questionnaire about their study habits, attitudes towards school, circumstances at home, etc., all of which are factors that may influence student success. In the analysis below, I derive a "student success" variable from the reading and math scores and attempt to predict success using information from the background questionnaire. I use this process to look for the most decisive issues in determining student success, first for the USA, and then for other countries. The goal is to try to find the next logical steps to improve education policy.
 
 
 # A first cleanup: getting ready to explore
 
-The student-specific 2012 PISA dataset is large and messy, and it needs to be cleaned and subsetted both before and after exploratory analysis. For example, to save computing time, and because overall pedagogy and the survey's implementation are different among different countries, only students from the United States will be examined until the "Other Countries" section.
+The student-specific 2012 PISA dataset is large and messy, and it needs to be cleaned and subsetted both before and after exploratory analysis. And because overall pedagogy and the survey's implementation are different among different countries, only students from the United States will be examined until the "Other Countries" section.
 
 ## Variables for predicting success
 
-There are around 500 variables from the student background questionnaire, and large fraction of the answers are missing. In fact, after removing the few continuous survey variables and the questions with no recorded responses at all, only 256 variables are left. Of those 256, I remove the ones that probably cannot help education policy, such as self-efficacy measures, self-reported prior familiarity and experience with math and reading concepts, and nondescript "ISCED" variables. 210 factor variables remain for prediction, most of which have between 2 and 4 levels each.
+There are around 500 variables from the student background questionnaire, and large fraction of the answers are missing. In fact, after removing the few continuous survey variables and the questions with no recorded responses at all, only 256 variables are left. Of those 256, I remove the ones that are poorly documented or nearly redundant with test scores, such as self-efficacy measures, self-reported prior familiarity and experience with math and reading concepts, and nondescript "ISCED" variables. 210 factor variables remain for prediction, most of which have between 2 and 4 levels each.
 
 
 ## Measuring student success
@@ -54,7 +54,7 @@ For each student, the PISA dataset has 5 overall reading scores and 5 overall ma
 3. Collect the students with total scores below the 25th percentile, and call them "low-performing".
 4. Remove the rest of the students from the data.
 
-In the context of prediction, I now have a response variable with two possible values: high and low. I will temporarily suspend my skepticism and treat this factor as the gold standard of student success. 
+In the context of prediction, I now have a response variable with two possible values: high and low. I temporarily suspend my skepticism and treat this factor as the gold standard of student success. 
 
 ```{r pv, fig.cap="\\label{fig:pv}histogram of pairwise correlations among the original 5 reading and 5 math scores from the PISA tests. Correlations are high, so I do not lose much information in summing them up to produce a single total score for each student."}
   pvcor()
@@ -66,44 +66,44 @@ In this section, I attempt to find the general issues that have the highest pote
 
 ## Ranking individual predictor variables
 
-To get a rough picture of the important issues, I first rank all 210 variables individually. For the rankings, I use a matching heuristic that loosely measures how well a factor can split students by success level. For each factor $x$, I calculate this heuristic as follows. 
+To get a rough picture of the important issues, I first rank all 210 variables individually. For the rankings, I use a matching heuristic that loosely measures how well a factor can split students by success level. For each factor $x = (x_1, \ldots, x_n)$, I calculate this heuristic as follows. 
 
 1. Remove the missing values from $x$, along with the corresponding values from the binary vector $y$ of student performances (high and low coded as 1 and 0, respectively).
-2. For every subset $s$ of the levels of $x = (x_1, \ldots, x_n)$,
+2. For every subset $s$ of the levels of $x$,
     a. Create the binary vector $z = (z_1, \ldots, z_n)$, where $z_i = I(x_i \in s)$.
-    b. Let the matching score of $s$ be
+    b. Let 
 \begin{align*}
-\frac{1}{n} \max \left \{\sum_{i=1}^n I(y_i = z_i), \ \sum_{i=1}^n I(y_i \ne z_i) \right \}
+m_s = \frac{1}{n} \max \left \{\sum_{i=1}^n I(y_i = z_i), \ \sum_{i=1}^n I(y_i \ne z_i) \right \}
 \end{align*}
 
-3. Take the matching score of $x$ to be the maximum of all the matching scores calculated in step 2. 
+3. Let the matching score of $x$ be $\max_s m_s$.
 
 
 One can interpret the matching heuristic as the most optimistic rate of correct classification for a prediction on a single variable. A matching of 1 means that $x$ can predict $y$ perfectly, and a matching of 0.5 means that $x$ is no better than chance.
 
-Figure \ref{fig:allmatchings} shows the matching heuristics of the 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are "How many books at home" (censored) and "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late".
+Figure \ref{fig:allmatchings} shows the matching heuristics of the 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are "How many books at home" (censored into a few levels) and "Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late".
 
-```{r allmatchings, fig.cap="\\label{fig:allmatchings} matching heuristics of all 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are \"How many books at home\" (censored) and \"Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late\"."}
+```{r allmatchings, fig.cap="\\label{fig:allmatchings} matching heuristics of all 210 predictor variables. Most individual variables predict better than chance. The two variables with matchings better than 0.7 are \"How many books at home\" (censored into a few levels) and \"Vignette Classroom Management - Students Frequently Interrupt/Teacher Arrives Late\"."}
 matching.hist()
 ```
 
-Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The "number of books at home" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. 
+Figure \ref{fig:issue} shows the matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. Notable topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The "number of books at home" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections. 
 
-```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. The topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The \"number of books at home\" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections."}
+```{r issue, fig.height=6, fig.cap="\\label{fig:issue} matching scores of the 210 variables, where the variables are grouped by the general issues they cover, such as possessions, attitudes, teaching, etc. The results are not definitive because the matching scores only apply to separate variables individually. However, we can start to identify potentially useful key issues in education. Notable topics with multiple high matching scores are teaching, attitude/interest/motivation, and parental backgrounds. The \"number of books at home\" variable has the highest matching score of any variable, so school-related possessions may be important as well. These four issues have high potential for affecting student success, and they are the ones I will continue pursuing in subsequent sections."}
 plot.matching.by.issue()
 ```
 
 # Focusing on the key issues
 
-The previous section established that teaching, attitude/interest/motivation, and parental backgrounds could be important areas to investigate. Some matching scores on individual variables in these areas are high. But how important is each key issue overall? Which issues are more important than the others? How does each issue compare to the full predictive potential of the whole PISA dataset? To find out, I build a dataset on each issue and attempt to classify students according to academic success. Below, I describe these issue-specific datasets.
+The previous section established that teaching, attitude/interest/motivation, parental backgrounds, and school-related possessions could be important areas to investigate further. Some matching scores on individual variables in these areas are high. But how important is each key issue overall? Which issues are more important than the others? How does each issue compare to the full predictive potential of the whole PISA dataset? To find out, I build a dataset on each issue and attempt to classify students according to academic success. Below, I describe these issue-specific datasets.
 
 ## Issue-specific datasets
 
 ### Teaching
 
-The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
+The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, the quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown in Figure \ref{fig:usateaching}.
 
-```{r usateaching, fig.cap="\\label{fig:usateaching} The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
+```{r usateaching, fig.cap="\\label{fig:usateaching} The USA teaching variables measure many different aspects of teaching style and quality as experienced by the students, such as the frequency of homework, the quality of feedback, classroom management, the disciplinary climate of the classroom, student-teacher rapport, assessments, and calculator use. For the teaching dataset, I take the teaching variables with the top 20 matching scores, shown here."}
 matching.dot.plot(country = "USA", .issue = "teaching")
 ```
 
@@ -143,9 +143,9 @@ matching.dot.plot(country = "USA", .issue = "top_20")
 
 ## Imputation
 
-Each of the four datasets above has missing values, before I can classify students, I need to impute them. Here, I carry out an 10-nearest-neighbors imputation for the "top 20 variables" USA dataset (``DMwR`` R package [@DMwR]). I do not show the imputation for the other 3 datasets here because these cases are similar.
+Each of the five datasets above has missing values, and before I can classify students, I need to impute them. In this subsection, I remove some students and then carry out a 10-nearest-neighbors imputation for the "top 20 variables" USA dataset (``DMwR`` R package [@DMwR]). I do not show the imputation for the other 3 datasets here because these cases are similar.
 
-Figure \ref{fig:navariable} shows that many variables have an entire third of their values missing, so the imputation process is messy. Some students have an unmanageably high number of missing values, as seen in Figure \ref{fig:nastudent}, and these students need to be removed. (For some other countries, variables with over 70\% missing cases also needed to be removed, but there were no such variables for the USA.) I make the choice to remove the small percentage of students (less than 4\%) with over 15 missing values. This cutoff of 15 has the advantage of keeping as many students as seems practical, but it may be too high: imputing too many missing values could distort the data. Hence, I check that the summary information for the imputed data is the same as the summary information of the original data. Figure \ref{fig:imputationcheck} shows that the ranges are the same between the imputed and non-imputed versions, and that most of the quartiles are the same. The 10-nearest-neighbors imputation was a success.
+Figure \ref{fig:navariable} shows that many variables have an entire third of their values missing, so the imputation process is messy. Some students have an unmanageably high number of missing values, as seen in Figure \ref{fig:nastudent}, and these students need to be removed. (For some other countries, variables with over 70\% missing cases also needed to be removed, but there were no such variables for the USA.) I make the choice to remove the small portion of students (less than 4\%) with over 15 missing values. Many students remain, possibly too many: imputing too many missing values could distort basic summary statistics on the data. Hence, I check that the summary information for the imputed data is the same as the summary information of the original data. Figure \ref{fig:imputationcheck} shows that the ranges are the same between the imputed and non-imputed versions and that most of the quartiles are the same. The 10-nearest-neighbors imputation was a success.
 
 Although it would be cumbersome to show here, I imputed and checked the other three datasets analogously. For the teaching and attitude/interest/motivation datasets, I removed students with more than 15 missing values. For the parent backgrounds dataset, which had 15 predictor variables, I removed students with more than 12 missing values. For the school-related possessions dataset, I used all 13 predictor variables and removed students with more than 9 missing values.
 
@@ -164,7 +164,7 @@ imputation.check()
 
 ## So which issue is most important?
 
-I use each of the four datasets above to attempt to classify students according to high or low academic success. I try several different classifiers, including
+I use each of the four datasets above to attempt to classify students according to high or low success on the PISA exam. I try several different classifiers, including
 
 - logistic regression (``glm`` function in core R [@R]).
 - a random forest with 500 trees (``randomForest`` R package [@randomForest]).
@@ -174,17 +174,17 @@ I use each of the four datasets above to attempt to classify students according 
 - quadratic discriminant analysis (``MASS`` package in R [@MASS]).
 - K nearest neighbors with $K$ = 5, 10, and 25 (``class`` package in R [@MASS]).
 
-Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:classusa} shows the rates of correct classification on the test sets, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success. 
+Before applying the classifiers, I divided each dataset at random into training and test sets (75\% training cases, 25\% test cases). Figure \ref{fig:classusa} shows the rates of correct classification on the test sets, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset, then the parental backgrounds dataset.
 
-```{r classusa, fig.cap = "\\label{fig:classusa} for the USA, rates of correct classification on the test sets, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset. The parental backgrounds dataset is the least useful for predicting academic success."}
+```{r classusa, fig.cap = "\\label{fig:classusa} for the USA, rates of correct classification on the test sets, grouped by key issue, after training on the training sets. As expected, all the classifiers performed best on the dataset with the variables with the top 20 matching scores. After that, the teaching dataset was the most useful, then the attitude/interest/motivation dataset, then the possessions dataset, then the parental backgrounds dataset."}
 rate.plot()
 ```
 
-It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and possessions, and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design, both in the number and quality of the questions targeting each issue. For example, Dana Goldstein argues in \underline{The Teacher Wars: A History of America's Most Embattled Profession} that in the United States, the public has historically placed unreasonably high levels of expectation and blame on teachers, making the issue of teacher quality even more central than otherwise in education policy debates [@teacherwars]. This backdrop may have influenced OECD employees to write more abundant, more thoughtful, and more research-backed questions about teaching than most of the other categories.
+It is tempting to conclude that the quality and style of teaching is more important to academic success than student attitudes and possessions, and that parental influences matter even less. However, these findings could easily be artifacts of the PISA survey design, both in the number and quality of the questions targeting each issue. For example, Dana Goldstein argues in \underline{The Teacher Wars: A History of America's Most Embattled Profession} that in the United States, the public has historically placed unreasonably high levels of expectation and blame on teachers, making the issue of teacher quality even more central than otherwise in education policy debates [@teacherwars]. This backdrop may have influenced OECD employees to write more abundant, more thoughtful, and more research-backed questions about teaching than about most of the other categories.
 
 # Other countries
 
-How does the USA compare to other countries? Do different factors determine success in other parts of the world? For comparison, I look at the PISA results from Japan, Germany, and Peru. Japan and the USA are frequently compared in American education news stories, Germany has a conveniently high response rate in the PISA survey, and Peru's education system famously lags behind those of other countries (with the possible exception of private schools in Lima).  
+How does the USA compare to other countries? Are different factors linked with success in other parts of the world? For comparison, I look at the PISA results from Japan, Germany, and Peru. Japan and the USA are frequently compared in American education news stories, Germany has a conveniently high response rate in the PISA survey, and Peru's education system famously lags behind those of other countries (with the possible exception of private schools in Lima).  
 
 ## Finding the key issues
 
@@ -196,36 +196,36 @@ all.matching.boxplots()
 
 ## Classifying students
 
-Similarly to the USA data, I build a dataset for each key issue and country and use the datasets to attempt to predict student success. For each issue, I select the 20 variables with the top matching scores (or all of the variables if there are less than 20). I remove students with more missing values than 75\% of the number of variables, and then I remove the variables that originally had more than 70\% missing values. As before, I use 10-nearest-neighbors imputation to impute missing values, and although I do not show them here, I use figures similar to Figure \ref{fig:imputationcheck} to verify that all imputations are successful. After imputation, I train multiple classifiers on 75\% of the data and then test on the remaining 25\%. 
+Similarly to the USA data, I build a dataset for each noteworthy key issue and country and use the datasets to attempt to predict student success. For each issue, I select the 20 variables with the top matching scores (or all of the variables if there are less than 20). I remove students with more missing values than 75\% of the number of variables, and then I remove the variables that originally had more than 70\% missing values. As before, I use 10-nearest-neighbors imputation to impute missing values, and although I do not show them here, I use figures similar to Figure \ref{fig:imputationcheck} to verify that all imputations are successful. After imputation, I train multiple classifiers on 75\% of the data and then test on the remaining 25\%. 
 
 
-Figure \ref{fig:intlclass} shows the rates of correct classification on the test sets for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. Below, I make observations about each country according to the figure.
+Figure \ref{fig:intlclass} shows the rates of correct classification on the test sets for each country. (Here, I should say that for some cases, the k-nearest-neighbors classifiers failed because of too many ties. Those results were not plotted.) The different patterns in the plot may be consequences of different implementations of PISA in different countries, or they may reveal real differences among the education systems of the different countries. Below, I make observations about each country according to the figure.
 
-```{r intlclass, warning = F, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:intlclass} rates of correct classification on the test sets for each country, faceted to compare the relative importance of key issues across countries. This plot may be full of artifacts of the inevitably different in-the-field implementations of the PISA survey, or it reveal key differences among the education systems of the different countries. In the \"Classifying students\" subsection of the \"Other countries\" section, I make observations about each country according to this figure."}
-rate.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "Issue")
+```{r intlclass, warning = F, fig.width = 9, fig.height = 10, fig.cap="\\label{fig:intlclass} rates of correct classification on the test sets for each country. The different patterns in the plot may be consequences of different implementations of PISA in different countries, or they may reveal real differences among the education systems of the different countries. In the \"Classifying students\" subsection of the \"Other countries\" section, I make observations about each country according to this figure."}
+rate.plot(countries = c("USA", "Japan", "Germany", "Peru"), facet.type = "country")
 ```
 
 ### The United States
 
-Teaching quality is more decisive here than in other countries. Attitude/interest/motivation, school-related possessions, and parental backgrounds are important, but less decisive relative to other countries. Study habits outside school, course content, attendance/truancy, and international backgrounds are not plotted because they were not decisive enough to be selected as potential classifiers of students. These findings may validate the US news media's obsessive attention to teaching quality. I do not claim that teaching is lacking overall. Rather, because they predict student success more accurately than other issues, it may be the most appropriate next issue to tackle to improve US education policy.
+Teaching quality is relatively decisive, while study habits outside school, course content, attendance/truancy, and international backgrounds (whether the parents are from other countries, whether a foreign language is spoken at home, etc.) are less relatively useful in predicting success. These findings may validate the US news media's obsessive attention to teaching quality. I do not claim that teaching is lacking overall. Rather, because teaching quality predicts student success more accurately than other issues, it may be the most appropriate next issue to tackle to improve US education policy, hopefully in a way that honors and fully compensates teachers.
 
 ### Japan
 
-For each issue plotted, students were more difficult to classify in Japan than in other countries. It may be that teaching quality, possessions, enthusiasm, parental backgrounds, and truancy are less of a problem for Japan than in the other countries. At least, these factors are less decisive in determining student success, and the path to further innovating the Japanese education system does not lie in the usual places. The next breakthrough in Japan may be more surprising and interesting than in other countries.
+In general, students were more difficult to classify in Japan than in other countries. It may be that Japanese schools do not have the typical problems that other schools do, or it could be that the path to further innovating the Japanese education system does not lie in the usual places. The next breakthrough in Japan may be more surprising and interesting than in other countries.
 
 ### Germany
 
-Germany is very much like the USA in that teaching quality is the most decisive factor plotted here relative to other countries, and that attitude/interest/motivation, school-related possessions, and parental backgrounds are important, but less decisive relative to other countries. However, a key difference between the USA and Germany is that attendance/truancy is decisive enough to be plotted. This could mean that truancy is more of a problem in Germany, or it could be that Germany executed the PISA program more thoroughly and had higher response rates.
+Germany is very much like the USA in that teaching quality and attitude/interest/motivation are important. Unlike the USA, however, course content (mostly questions about the kinds of math problems on routine in-class exams), international backgrounds, and attendance/truancy are more decisive in determining student success. Granted, these factors could appear more decisive here than in the USA because response rates are higher for Germany. However, it's possible that curriculum design and school attendance policy are relatively easy opportunities to effect change.
 
 ### Peru
 
-Teaching quality was not as decisive in the USA, but still is important. Attitude, parental backgrounds, possessions, and attendance were all more decisive in Peru than in the other three countries. Wealth inequality is a limiting factor here, and part of the solution may be to supply schools and aid in curriculum design on a massive scale. Not much can be done about parental backgrounds except maybe adult education, which is far less common than the education of children and teens, but mentorship programs could help put students on different academic and professional tracks than their parents.
+Peru's school system has been notoriously under-resourced for generations, which explains why school-related possessions and attendance/truancy are so telling. In addition, there is not as much upward mobility as in the other countries here, which is why the parental backgrounds are of particular importance. Overall, Peru's students are easier to classify than in the other countries listed, so the road to reform may be clearer here than elsewhere. However, speaking outside the scope of PISA, Peru's education problems are very much tied up in inequality issues and corruption in government. 
 
 
 
 # Conclusion
 
-The PISA dataset is messy, but there's a story here. PISA surveyors focused most of their questions on the quality of teaching and the attitudes of students, both of which were at least somewhat important for the success of students in The United States, Japan, Germany, and Peru. In The United States, teaching quality was the most decisive factor in determining student success,  more decisive in the USA than in the other three countries. In Germany, the deciding factors are similar, Peru's deciding factors are more material and familial than elsewhere, and Japan's students are difficult to classify based on the usual suspects. The key issues targeted above could very well be relative strengths or weaknesses as reflected by the misclassification rates above. The wealth inequality obstacle in Peru is obvious both in the data and in real life, and the teaching quality debate rages in America. Alternatively, the findings could all be artifacts of the PISA design, products of the biases and preferences of OECD employees, or reflections of the differences in response rates among different countries. In the most optimistic interpretation, these results begin to point to the next logical steps to improve education policy.
+I combed through the 2012 PISA student dataset, attempted to extract the larger issues, and tried to offer some basic implications for education policy. The recommendations above are few and unsurprising, and the underlying findings could be tangled with the biases, preconceptions, and priorities of the PISA surveyors, as well as the different implementations and nonresponse patterns in different countries. However, this approach does profile a large and cumbersome dataset, and the analysis hopefully offers some intuition.
 
 
 # Acknowledgements

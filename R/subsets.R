@@ -47,7 +47,10 @@ getSubset = function(country = "USA", .issue = "top_20", n = 20, max.na = floor(
 
     s$dictionary = s$dictionary[1:n,]
     s$x = s$x[, 1:n]
-  }
+  } 
+
+  if(n < 6)
+    max.na = 1
 
   s = impute(s, max.na)
   saveRDS(s, f)
